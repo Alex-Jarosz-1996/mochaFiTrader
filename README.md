@@ -13,52 +13,15 @@ $ cd build/
 
 3. cmake in build/ directory
 ```bash
-$ cmake ..
+$ cmake .. -GNinja -DCMAKE_TOOLCHAIN_FILE=~/code/vcpkg/scripts/buildsystems/vcpkg.cmake
 ```
 
 4. make .exe file
 ```bash
-$ make
+$ cmake --build .
 ```
 
 5. execute .exe file (from project root)
-```bash
-$ ./build/mochaFiTrader
-```
-
-## Build instructions (rebuild - no changes to CMakeLists.txt)
-1. cd build/ directory
-```bash
-$ cd build/
-```
-
-2. make .exe file
-```bash
-$ make
-```
-
-3. execute .exe file (from project root)
-```bash
-$ ./build/mochaFiTrader
-```
-
-## Build instructions (rebuild - changed to CMakeLists.txt)
-1. cd build/ directory
-```bash
-$ cd build/
-```
-
-2. cmake in build/ directory
-```bash
-$ cmake ..
-```
-
-3. make .exe file
-```bash
-$ make
-```
-
-4. execute .exe file (from project root)
 ```bash
 $ ./build/mochaFiTrader
 ```
