@@ -1,17 +1,21 @@
 #include <iostream>
-#include <vector>
-#include <cpr/cpr.h>
+#include <memory>
+#include <stdexcept>
+#include <exception>
 
-using namespace std;
+#include "tastyworks/TastyWorks.h"
 
-int main()
+int main(int argc, char** argv)
 {
-    // TODO; placeholder, incorporate where needed
-    std::vector<std::string> symbols = {"SPY", "QQQ", "BTCUSD"};
-
-    for (const auto& symbol: symbols) 
+    try 
     {
-        cout << symbol << endl;
+        std::unique_ptr<TastyWorksClient> twClient = std::make_unique<TastyWorksClient>();
+        std::string session_token = twClient->getSessionToken();
+
+    } 
+    catch (const std::exception& e)
+    {
+        std::cout << "Error: " << e.what() << std::endl;
     }
 
     return 0;
