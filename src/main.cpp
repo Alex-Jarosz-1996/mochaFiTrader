@@ -2,6 +2,7 @@
 #include <memory>
 #include <stdexcept>
 #include <exception>
+#include <vector>
 
 #include "tastyworks/TastyWorks.h"
 
@@ -9,12 +10,28 @@ int main(int argc, char** argv)
 {
     try 
     {
-        std::unique_ptr<TastyWorksClient> twClient = std::make_unique<TastyWorksClient>();
-        std::string session_token = twClient->getSessionToken();
+        // Tradeable assets
+        std::vector<std::string> tradeable_assets = {"BTC/USD", "ETH/USD", "LTC/USD"};
 
-        if (session_token == "") {
-            throw std::invalid_argument("No session token generated. Check login details.");
-        }
+        // Generating token
+        std::unique_ptr<TastyWorksClient> twClient = std::make_unique<TastyWorksClient>();
+        twClient->confirmSessionTokenGenerated();
+
+        // TODO: update destructor class for TastyWorksClient
+
+        // Check whether account is active, able to make trades
+
+        // Developer market data streamer
+        // TODO: check market stream data in seconds, minutes etc
+
+        // Develop PostgreSQL db; read and write
+
+        // Develop Algorithm class (consumes db data) : (VolumeWeightedMA)
+
+        // Develop trade submission class
+        // TODO: check whether make orders in seconds, minutes basis etc
+
+        std::cout << "Successfully completed project workflow" << std::endl;
 
     } 
     catch (const std::invalid_argument e)

@@ -7,9 +7,38 @@
 
 TastyWorksClient::TastyWorksClient() {
     loadConfig();
+    _session_token = TastyWorksClient::getSessionToken();
 }
 
-TastyWorksClient::~TastyWorksClient() {}
+TastyWorksClient::~TastyWorksClient() {
+    logout();
+}
+
+void TastyWorksClient::logout() {
+    std::string session_url = BASE_URL + "/sessions";
+    
+    cpr::Header headers = {
+        {"User-Agent", "tastytrade-api-client/1.0"},
+        {"Content-Type", "application/json"},
+        {"Accept", "application/json"},
+        {"Authorization", _session_token}
+    };
+    
+    cpr::Response r = cpr::Delete(cpr::Url{session_url},
+        headers,
+        cpr::Timeout{5000}
+    );
+
+    if (r.status_code == 204) {
+        std::cout << "Successfully logged out of user account." << std::endl;
+        return;
+    }
+    
+    std::cout << "Unable to log out of user account." << std::endl;
+    std::cerr << "Status Code: " << r.status_code << std::endl;
+    std::cerr << "Reasoning: " << r.text << std::endl;
+    return;
+}
 
 void TastyWorksClient::loadConfig() {
     std::ifstream file("config.json");
@@ -61,11 +90,22 @@ std::string TastyWorksClient::getSessionToken() {
 
         auto json = nlohmann::json::parse(r.text);
         
-        std::string session_token = json["data"]["session-token"];
-        return session_token;
+        std::string _session_token = json["data"]["session-token"];
+        return _session_token;
     }
 
     std::cerr << "Status Code: " << r.status_code << std::endl;
     std::cerr << "Reasoning: " << r.text << std::endl;
     return "";
+}
+
+
+void TastyWorksClient::confirmSessionTokenGenerated() {
+    std::cout << "Checking if session token was generated." << std::endl;
+    
+    if (TastyWorksClient::_session_token == "") {
+        throw std::invalid_argument("No session token generated. Check login details.");
+    }
+
+    std::cout << "Session token was generated." << std::endl;
 }

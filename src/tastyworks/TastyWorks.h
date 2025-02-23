@@ -12,9 +12,11 @@ class TastyWorksClient {
         std::string PASSWORD;
         std::string ACCOUNT_NUMBER;
         bool REMEMBER_ME;
-        std::string session_token;
+        std::string _session_token;
     
         void loadConfig();
+
+        void logout();
     
     public:
         TastyWorksClient();
@@ -22,6 +24,8 @@ class TastyWorksClient {
         ~TastyWorksClient();
         
         std::string getSessionToken();
+
+        void confirmSessionTokenGenerated();
     };
 
 #endif // TASTYWORKSCLIENT_H
