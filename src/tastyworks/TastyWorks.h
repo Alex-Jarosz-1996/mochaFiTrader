@@ -1,31 +1,31 @@
 #ifndef TASTYWORKSCLIENT_H
 #define TASTYWORKSCLIENT_H
 
-#include <string>
 #include <cpr/cpr.h>
 #include <nlohmann/json.hpp>
+#include <string>
 
 class TastyWorksClient {
-    private:
-        std::string BASE_URL;
-        std::string LOGIN;
-        std::string PASSWORD;
-        std::string ACCOUNT_NUMBER;
-        bool REMEMBER_ME;
-        std::string _session_token;
-    
-        void loadConfig();
+private:
+  std::string BASE_URL;
+  std::string LOGIN;
+  std::string PASSWORD;
+  std::string ACCOUNT_NUMBER;
+  bool REMEMBER_ME;
+  std::string _session_token;
 
-        void logout();
-    
-    public:
-        TastyWorksClient();
-    
-        ~TastyWorksClient();
-        
-        std::string getSessionToken();
+  void loadConfig();
 
-        void confirmSessionTokenGenerated();
-    };
+  void logout();
+
+public:
+  TastyWorksClient();
+
+  ~TastyWorksClient();
+
+  std::string getSessionToken();
+
+  void confirmSessionTokenGenerated();
+};
 
 #endif // TASTYWORKSCLIENT_H

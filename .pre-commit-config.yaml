@@ -1,0 +1,31 @@
+repos:
+  # clang-format: Formats your code before committing
+  - repo: local
+    hooks:
+      - id: clang-format
+        name: clang-format
+        entry: clang-format -i
+        language: system
+        types: [c, c++]
+        files: \.(h|cpp)$
+
+  # clang-tidy: Performs static analysis to detect bugs
+  - repo: local
+    hooks:
+      - id: clang-tidy
+        name: clang-tidy
+        entry: clang-tidy
+        language: system
+        types: [c, c++]
+        files: \.(h|cpp)$
+        pass_filenames: true
+
+  # cppcheck: Additional static analysis for undefined behavior
+  - repo: local
+    hooks:
+      - id: cppcheck
+        name: cppcheck
+        entry: cppcheck --enable=all --inconclusive --quiet --std=c++17
+        language: system
+        types: [c, c++]
+        files: \.(h|cpp)$
