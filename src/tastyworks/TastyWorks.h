@@ -26,6 +26,9 @@ public:
   std::string getSessionToken();
 
   void confirmSessionTokenGenerated();
+
+  void confirmAccountActive();
+
 };
 
 #endif // TASTYWORKSCLIENT_H

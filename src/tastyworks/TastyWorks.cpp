@@ -109,3 +109,41 @@ void TastyWorksClient::confirmSessionTokenGenerated() {
 
     std::cout << "Session token was generated." << std::endl;
 }
+
+void TastyWorksClient::confirmAccountActive() {
+    std::cout << "Checking if user account is active." << std::endl;
+    
+    std::string account_active_url = BASE_URL + "/customers/me/accounts/" + ACCOUNT_NUMBER;
+
+    cpr::Header headers = {
+        {"User-Agent", "tastytrade-api-client/1.0"},
+        {"Content-Type", "application/json"},
+        {"Accept", "application/json"},
+        {"Authorization", _session_token}
+    };
+    
+    cpr::Response r = cpr::Get(cpr::Url{account_active_url},
+        headers,
+        cpr::Timeout{5000}
+    );
+
+    if (r.status_code == 200) {
+        nlohmann::json json_response = nlohmann::json::parse(r.text);
+        
+        if (json_response.contains("data") && json_response["data"].contains("is-closed")) {
+            bool is_inactive = json_response["data"]["is-closed"];
+            
+            // active = 1 / inactive = 0
+            if (!is_inactive) {
+                std::cout << "User account is active." << std::endl;
+                return;
+            }
+            
+            throw std::invalid_argument("User account is inactive. Please investigate.");
+        }
+
+        throw std::invalid_argument("User Account Get Request response bpdy is not of appropriate format.");
+    }
+
+    throw std::invalid_argument("Did not receive 200 response when checking if user account is active.");
+}

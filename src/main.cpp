@@ -17,9 +17,8 @@ int main(int argc, char** argv)
         std::unique_ptr<TastyWorksClient> twClient = std::make_unique<TastyWorksClient>();
         twClient->confirmSessionTokenGenerated();
 
-        // TODO: update destructor class for TastyWorksClient
-
         // Check whether account is active, able to make trades
+        twClient->confirmAccountActive();
 
         // Developer market data streamer
         // TODO: check market stream data in seconds, minutes etc
