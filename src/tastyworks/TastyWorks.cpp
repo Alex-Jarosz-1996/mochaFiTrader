@@ -110,7 +110,7 @@ void TastyWorksClient::confirmSessionTokenGenerated() {
     std::cout << "Session token was generated." << std::endl;
 }
 
-void TastyWorksClient::confirmAccountActive() {
+void TastyWorksClient::confirmUserAccountActive() {
     std::cout << "Checking if user account is active." << std::endl;
     
     std::string account_active_url = BASE_URL + "/customers/me/accounts/" + ACCOUNT_NUMBER;

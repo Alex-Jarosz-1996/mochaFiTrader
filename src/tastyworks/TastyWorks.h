@@ -27,7 +27,7 @@ public:
 
   void confirmSessionTokenGenerated();
 
-  void confirmAccountActive();
+  void confirmUserAccountActive();
 
 };
 

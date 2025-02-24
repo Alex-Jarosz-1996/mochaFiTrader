@@ -18,7 +18,7 @@ int main(int argc, char** argv)
         twClient->confirmSessionTokenGenerated();
 
         // Check whether account is active, able to make trades
-        twClient->confirmAccountActive();
+        twClient->confirmUserAccountActive();
 
         // Developer market data streamer
         // TODO: check market stream data in seconds, minutes etc
