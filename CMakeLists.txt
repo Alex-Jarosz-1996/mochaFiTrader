@@ -12,10 +12,30 @@ add_executable(mochaFiTrader
     src/tastyworks/TastyWorks.cpp
 )
 
-# package: cpr
+# packages
 find_package(cpr CONFIG REQUIRED)
-target_link_libraries(mochaFiTrader PRIVATE cpr::cpr)
-
-# package: nlohmann-json
 find_package(nlohmann_json CONFIG REQUIRED)
-target_link_libraries(mochaFiTrader PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(mochaFiTrader PRIVATE 
+    cpr::cpr 
+    nlohmann_json::nlohmann_json
+)
+
+# unit-tests
+enable_testing()
+find_package(GTest REQUIRED)
+include_directories(${GTEST_INCLUDE_DIRS})
+find_package(httplib CONFIG REQUIRED)
+
+add_executable(runTests 
+    tests/test_TastyWorks.cpp
+    src/tastyworks/TastyWorks.cpp
+)
+
+target_link_libraries(runTests PRIVATE
+    ${GTEST_BOTH_LIBRARIES} 
+    httplib::httplib pthread
+    cpr::cpr
+    nlohmann_json::nlohmann_json
+)
+
+add_test(NAME tests COMMAND runTests)
