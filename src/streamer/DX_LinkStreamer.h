@@ -11,7 +11,7 @@ private:
     // required for class
     std::string instrument_type;
     std::string instrument;
-    TastyWorksClient twClientInstance;
+    TastyWorksClient& twClientInstance;
 
     const int TIMEOUT = 5; // seconds
     const int SETUP_CHANNEL = 0;
