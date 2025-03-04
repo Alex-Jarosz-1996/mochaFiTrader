@@ -26,7 +26,7 @@ public:
 
   ~TastyWorksClient();
 
-  std::string getSessionToken();
+  void getSessionToken();
 
   void confirmSessionTokenGenerated();
 

@@ -7,7 +7,7 @@
 
 TEST(TastyWorksClientTest, HandlesSessionTokenGeneration) {
   TastyWorksClient* twClient = new TastyWorksClient();;
-  std::string _session_token = twClient->getSessionToken();
-  ASSERT_TRUE(!_session_token.empty());
+  twClient->getSessionToken();
+  ASSERT_TRUE(!twClient->_session_token.empty());
   delete twClient;
 }

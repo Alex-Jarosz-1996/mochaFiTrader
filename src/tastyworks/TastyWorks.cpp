@@ -9,7 +9,7 @@ TastyWorksClient::TastyWorksClient() {
     loadConfig();
     
     // Generating token
-    _session_token = getSessionToken();
+    getSessionToken();
     confirmSessionTokenGenerated();
     
     // Check whether account is active, able to make trades
@@ -64,11 +64,11 @@ void TastyWorksClient::loadConfig() {
     REMEMBER_ME = true;
 }
 
-std::string TastyWorksClient::getSessionToken() {
+void TastyWorksClient::getSessionToken() {
     // checking for empty login credentials
     if (LOGIN.empty() || PASSWORD.empty() || ACCOUNT_NUMBER.empty()) {
         std::cerr << "Missing account credentials. Check config.json file." << std::endl;
-        return "";
+        return;
     }
     
     std::string session_url = BASE_URL + "/sessions";
@@ -96,13 +96,13 @@ std::string TastyWorksClient::getSessionToken() {
 
         auto json = nlohmann::json::parse(r.text);
         
-        std::string _session_token = json["data"]["session-token"];
-        return _session_token;
+        _session_token = json["data"]["session-token"];
+        return;
     }
 
     std::cerr << "Status Code: " << r.status_code << std::endl;
     std::cerr << "Reasoning: " << r.text << std::endl;
-    return "";
+    throw std::invalid_argument("Issue generating session token." + r.text);
 }
 
 
