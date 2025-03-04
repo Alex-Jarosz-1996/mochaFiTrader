@@ -4,12 +4,16 @@ project(mochaFiTrader)
 set(CMAKE_CXX_STANDARD 17)
 
 # Including custom directories
-include_directories(${CMAKE_SOURCE_DIR}/src/tastyworks)
+include_directories(
+    ${CMAKE_SOURCE_DIR}/src/tastyworks
+    ${CMAKE_SOURCE_DIR}/src/streamer
+)
 
 # Create the executable
 add_executable(mochaFiTrader 
     src/main.cpp
     src/tastyworks/TastyWorks.cpp
+    src/streamer/DX_LinkStreamer.cpp
 )
 
 # packages

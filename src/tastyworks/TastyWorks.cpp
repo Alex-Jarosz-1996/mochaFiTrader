@@ -7,7 +7,13 @@
 
 TastyWorksClient::TastyWorksClient() {
     loadConfig();
-    _session_token = TastyWorksClient::getSessionToken();
+    
+    // Generating token
+    _session_token = getSessionToken();
+    confirmSessionTokenGenerated();
+    
+    // Check whether account is active, able to make trades
+    confirmUserAccountActive();
 }
 
 TastyWorksClient::~TastyWorksClient() {
@@ -142,8 +148,41 @@ void TastyWorksClient::confirmUserAccountActive() {
             throw std::invalid_argument("User account is inactive. Please investigate.");
         }
 
-        throw std::invalid_argument("User Account Get Request response bpdy is not of appropriate format.");
+        throw std::invalid_argument("User Account Get Request response body is not of appropriate format.");
     }
 
     throw std::invalid_argument("Did not receive 200 response when checking if user account is active.");
+}
+
+void TastyWorksClient::getAPI_QuoteToken() {
+    std::cout << "Checking if can retrieve API quote token." << std::endl;
+
+    std::string api_quote_token_url = BASE_URL + "/api-quote-tokens";
+
+    cpr::Header headers = {
+        {"User-Agent", "tastytrade-api-client/1.0"},
+        {"Content-Type", "application/json"},
+        {"Accept", "application/json"},
+        {"Authorization", _session_token}
+    };
+
+    cpr::Response r = cpr::Get(cpr::Url{api_quote_token_url},
+        headers,
+        cpr::Timeout{5000}
+    );
+
+    if (r.status_code == 200) {
+        nlohmann::json json_response = nlohmann::json::parse(r.text);
+
+        if (json_response.contains("data") && json_response["data"].contains("dxlink-url") && json_response["data"].contains("token")) {
+            _api_quote_token = json_response["data"]["dxlink-url"];
+            _dx_link_url = json_response["data"]["token"];
+
+            return;
+        }
+
+        throw std::invalid_argument("API quote token Get Request response bpdy is not of appropriate format.");
+    }
+    
+    throw std::invalid_argument("Did not receive 200 response when requesting API quote token.");
 }

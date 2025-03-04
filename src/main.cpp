@@ -2,25 +2,23 @@
 #include <memory>
 #include <stdexcept>
 #include <exception>
-#include <vector>
 
 #include "tastyworks/TastyWorks.h"
+#include "streamer/DX_LinkStreamer.h"
 
 int main(int argc, char** argv)
 {
     try 
     {
-        // Tradeable assets
-        std::vector<std::string> tradeable_assets = {"BTC/USD", "ETH/USD", "LTC/USD"};
-
-        // Generating token
+        // declarations
+        std::string tradeable_assets = "BTC/USD";
+        std::string instrument_type = "options";
         std::unique_ptr<TastyWorksClient> twClient = std::make_unique<TastyWorksClient>();
-        twClient->confirmSessionTokenGenerated();
-
-        // Check whether account is active, able to make trades
-        twClient->confirmUserAccountActive();
 
         // Developer market data streamer
+        std::unique_ptr<DX_LinkStreamer> dxlStreamer = std::make_unique<DX_LinkStreamer>(
+            instrument_type, tradeable_assets, *twClient
+        );
         // TODO: check market stream data in seconds, minutes etc
 
         // Develop PostgreSQL db; read and write
