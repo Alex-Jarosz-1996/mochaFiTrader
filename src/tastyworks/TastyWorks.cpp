@@ -5,7 +5,8 @@
 #include <cpr/cpr.h>
 #include <nlohmann/json.hpp>
 
-TastyWorksClient::TastyWorksClient() {
+TastyWorksClient::TastyWorksClient()
+{
     loadConfig();
     
     // Generating token
@@ -16,11 +17,13 @@ TastyWorksClient::TastyWorksClient() {
     confirmUserAccountActive();
 }
 
-TastyWorksClient::~TastyWorksClient() {
+TastyWorksClient::~TastyWorksClient()
+{
     logout();
 }
 
-void TastyWorksClient::logout() {
+void TastyWorksClient::logout()
+{
     std::string session_url = BASE_URL + "/sessions";
     
     cpr::Header headers = {
@@ -35,7 +38,8 @@ void TastyWorksClient::logout() {
         cpr::Timeout{5000}
     );
 
-    if (r.status_code == 204) {
+    if (r.status_code == 204)
+    {
         std::cout << "Successfully logged out of user account." << std::endl;
         return;
     }
@@ -46,9 +50,11 @@ void TastyWorksClient::logout() {
     return;
 }
 
-void TastyWorksClient::loadConfig() {
+void TastyWorksClient::loadConfig()
+{
     std::ifstream file("config.json");
-    if (!file.is_open()) {
+    if (!file.is_open())
+    {
         std::cerr << "Could not open mochaFiTrader config.json" << std::endl;
         return;
     }
@@ -64,9 +70,11 @@ void TastyWorksClient::loadConfig() {
     REMEMBER_ME = true;
 }
 
-void TastyWorksClient::getSessionToken() {
+void TastyWorksClient::getSessionToken()
+{
     // checking for empty login credentials
-    if (LOGIN.empty() || PASSWORD.empty() || ACCOUNT_NUMBER.empty()) {
+    if (LOGIN.empty() || PASSWORD.empty() || ACCOUNT_NUMBER.empty())
+    {
         std::cerr << "Missing account credentials. Check config.json file." << std::endl;
         return;
     }
@@ -91,7 +99,8 @@ void TastyWorksClient::getSessionToken() {
         cpr::Timeout{5000}
     );
 
-    if (r.status_code == 201) {
+    if (r.status_code == 201)
+    {
         std::cout << "Successfully logged into user account." << std::endl;
 
         auto json = nlohmann::json::parse(r.text);
@@ -106,17 +115,20 @@ void TastyWorksClient::getSessionToken() {
 }
 
 
-void TastyWorksClient::confirmSessionTokenGenerated() {
+void TastyWorksClient::confirmSessionTokenGenerated()
+{
     std::cout << "Checking if session token was generated." << std::endl;
     
-    if (TastyWorksClient::_session_token == "") {
+    if (TastyWorksClient::_session_token == "")
+    {
         throw std::invalid_argument("No session token generated. Check login details.");
     }
 
     std::cout << "Session token was generated." << std::endl;
 }
 
-void TastyWorksClient::confirmUserAccountActive() {
+void TastyWorksClient::confirmUserAccountActive()
+{
     std::cout << "Checking if user account is active." << std::endl;
     
     std::string account_active_url = BASE_URL + "/customers/me/accounts/" + ACCOUNT_NUMBER;
@@ -133,14 +145,17 @@ void TastyWorksClient::confirmUserAccountActive() {
         cpr::Timeout{5000}
     );
 
-    if (r.status_code == 200) {
+    if (r.status_code == 200)
+    {
         nlohmann::json json_response = nlohmann::json::parse(r.text);
         
-        if (json_response.contains("data") && json_response["data"].contains("is-closed")) {
+        if (json_response.contains("data") && json_response["data"].contains("is-closed"))
+        {
             bool is_inactive = json_response["data"]["is-closed"];
             
             // active = 1 / inactive = 0
-            if (!is_inactive) {
+            if (!is_inactive)
+            {
                 std::cout << "User account is active." << std::endl;
                 return;
             }
@@ -154,7 +169,8 @@ void TastyWorksClient::confirmUserAccountActive() {
     throw std::invalid_argument("Did not receive 200 response when checking if user account is active.");
 }
 
-void TastyWorksClient::getAPI_QuoteToken() {
+void TastyWorksClient::getAPI_QuoteToken()
+{
     std::cout << "Checking if can retrieve API quote token." << std::endl;
 
     std::string api_quote_token_url = BASE_URL + "/api-quote-tokens";
@@ -171,10 +187,12 @@ void TastyWorksClient::getAPI_QuoteToken() {
         cpr::Timeout{5000}
     );
 
-    if (r.status_code == 200) {
+    if (r.status_code == 200)
+    {
         nlohmann::json json_response = nlohmann::json::parse(r.text);
 
-        if (json_response.contains("data") && json_response["data"].contains("dxlink-url") && json_response["data"].contains("token")) {
+        if (json_response.contains("data") && json_response["data"].contains("dxlink-url") && json_response["data"].contains("token"))
+        {
             _api_quote_token = json_response["data"]["dxlink-url"];
             _dx_link_url = json_response["data"]["token"];
 
