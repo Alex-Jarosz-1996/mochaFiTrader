@@ -11,7 +11,7 @@ int main(int argc, char** argv)
     try 
     {
         // declarations
-        std::string tradeable_assets = "BTC/USD";
+        std::string tradeable_assets = "BTC/USD:CXTALP";
         std::string instrument_type = "options";
         std::unique_ptr<TastyWorksClient> twClient = std::make_unique<TastyWorksClient>();
 
@@ -19,6 +19,8 @@ int main(int argc, char** argv)
         std::unique_ptr<DX_LinkStreamer> dxlStreamer = std::make_unique<DX_LinkStreamer>(
             instrument_type, tradeable_assets, *twClient
         );
+
+        // dxlStreamer->run();
         // TODO: check market stream data in seconds, minutes etc
 
         // Develop PostgreSQL db; read and write
@@ -31,9 +33,9 @@ int main(int argc, char** argv)
         std::cout << "Successfully completed project workflow" << std::endl;
 
     } 
-    catch (const std::invalid_argument e)
+    catch (const std::invalid_argument& e)
     {
-        std::cout << "Error: " << e.what() << std::endl;
+        std::cout << "Invalid Arg Error: " << e.what() << std::endl;
     }
     catch (const std::exception& e)
     {

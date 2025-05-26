@@ -15,6 +15,9 @@ TastyWorksClient::TastyWorksClient()
     
     // Check whether account is active, able to make trades
     confirmUserAccountActive();
+
+    // Generating session tokens
+    getAPI_QuoteToken();
 }
 
 TastyWorksClient::~TastyWorksClient()
@@ -193,8 +196,8 @@ void TastyWorksClient::getAPI_QuoteToken()
 
         if (json_response.contains("data") && json_response["data"].contains("dxlink-url") && json_response["data"].contains("token"))
         {
-            _api_quote_token = json_response["data"]["dxlink-url"];
-            _dx_link_url = json_response["data"]["token"];
+            _api_quote_token = json_response["data"]["token"];
+            _dx_link_url = json_response["data"]["dxlink-url"];
 
             return;
         }

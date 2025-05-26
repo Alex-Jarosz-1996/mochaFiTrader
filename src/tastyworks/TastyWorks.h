@@ -14,7 +14,6 @@ private:
   bool REMEMBER_ME;
 
   void loadConfig();
-
   void logout();
 
 public:
@@ -23,15 +22,12 @@ public:
   std::string _dx_link_url;
   
   TastyWorksClient();
-
+  
   ~TastyWorksClient();
-
+  
   void getSessionToken();
-
   void confirmSessionTokenGenerated();
-
   void confirmUserAccountActive();
-
   void getAPI_QuoteToken();
 };
 
