@@ -30,6 +30,7 @@ private:
     std::string session_token; 
 
     void populate_class_attrs();
+    void setup_messages();
 
 public:
     DX_LinkStreamer(
@@ -39,8 +40,6 @@ public:
     );
 
     ~DX_LinkStreamer();
-
-    void setup_messages();
 };
 
 #endif // DX_LINKSTREAMER_H
