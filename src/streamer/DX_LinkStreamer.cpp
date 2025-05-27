@@ -12,13 +12,15 @@ DX_LinkStreamer::DX_LinkStreamer(
 
 DX_LinkStreamer::~DX_LinkStreamer() {}
 
-void DX_LinkStreamer::populate_class_attrs() {
+void DX_LinkStreamer::populate_class_attrs()
+{
     ws_url = twClientInstance._dx_link_url;
     api_quote_token = twClientInstance._api_quote_token;
     session_token = twClientInstance._session_token;
 }
 
-void DX_LinkStreamer::setup_messages() {
+void DX_LinkStreamer::setup_messages()
+{
     setup_msg = nlohmann::json{
         {"type", "SETUP"},
         {"channel", SETUP_CHANNEL},
