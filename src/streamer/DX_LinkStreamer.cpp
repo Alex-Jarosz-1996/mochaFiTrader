@@ -16,7 +16,6 @@ void DX_LinkStreamer::populate_class_attrs()
 {
     ws_url = twClientInstance._dx_link_url;
     api_quote_token = twClientInstance._api_quote_token;
-    session_token = twClientInstance._session_token;
 }
 
 void DX_LinkStreamer::setup_messages()
@@ -32,7 +31,7 @@ void DX_LinkStreamer::setup_messages()
     authorize_msg = nlohmann::json{
         {"type", "AUTH"},
         {"channel", SETUP_CHANNEL},
-        {"token", session_token}
+        {"token", api_quote_token}
     };
 
     channel_request_msg = nlohmann::json{
@@ -80,4 +79,65 @@ void DX_LinkStreamer::setup_messages()
         {"type", "KEEPALIVE"},
         {"channel", FEED_CHANNEL}
     };
+}
+
+void DX_LinkStreamer::send(const nlohmann::json& msg)
+{
+    c.send(conn_hdl, msg.dump(), websocketpp::frame::opcode::text);
+    std::cout << "Sent: " << msg.dump() << std::endl;
+}
+
+void DX_LinkStreamer::run()
+{
+    // suppressing logging output of frame headers and payload
+    c.clear_access_channels(websocketpp::log::alevel::all);
+    c.clear_error_channels(websocketpp::log::elevel::all);
+    
+    c.init_asio();
+
+    // connection opened handler
+    c.set_open_handler([this](connection_hdl hdl) {
+        conn_hdl = hdl;
+        send(setup_msg);
+        send(authorize_msg);
+        send(channel_request_msg);
+        send(feed_setup_msg);
+
+        // Start periodic keep-alive and subscription
+        keep_alive_thread = std::thread([this]() {
+            while (true) {
+                std::this_thread::sleep_for(std::chrono::seconds(2));
+                send(feed_subscription_msg);
+                send(keep_alive_msg);
+            }
+        });
+    });
+
+    // message handler
+    c.set_message_handler([this](connection_hdl, client::message_ptr msg) {
+        std::cout << "Received: " << msg->get_payload() << std::endl;
+    });
+
+    // tls init handler for secure connections
+    c.set_tls_init_handler([](websocketpp::connection_hdl) {
+        auto ctx = std::make_shared<boost::asio::ssl::context>(boost::asio::ssl::context::sslv23);
+        ctx->set_options(boost::asio::ssl::context::default_workarounds |
+                        boost::asio::ssl::context::no_sslv2 |
+                        boost::asio::ssl::context::no_sslv3 |
+                        boost::asio::ssl::context::single_dh_use);
+        return ctx;
+    });
+
+    // create connection
+    websocketpp::lib::error_code ec;
+    client::connection_ptr con = c.get_connection(ws_url, ec);
+    
+    if (ec) 
+    {
+        throw std::runtime_error("Connection initialization error: " + ec.message());
+    }
+
+    c.connect(con);
+
+    c.run();
 }

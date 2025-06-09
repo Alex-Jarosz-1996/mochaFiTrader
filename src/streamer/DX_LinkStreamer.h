@@ -4,7 +4,19 @@
 #include <string>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <websocketpp/config/asio_client.hpp>
+#include <websocketpp/client.hpp>
+#include <boost/asio/ssl/context.hpp>
+#include <chrono>
+#include <thread>
+#include <functional>
+#include <mutex>
+
 #include "TastyWorks.h"
+
+typedef websocketpp::client<websocketpp::config::asio_tls_client> client;
+
+using websocketpp::connection_hdl;
 
 class DX_LinkStreamer {
 private:
@@ -15,7 +27,7 @@ private:
 
     const int TIMEOUT = 5; // seconds
     const int SETUP_CHANNEL = 0;
-    const int FEED_CHANNEL = 0;
+    const int FEED_CHANNEL = 3;
 
     nlohmann::json setup_msg;
     nlohmann::json authorize_msg;
@@ -27,10 +39,13 @@ private:
     // from TastyWorksClient class    
     std::string ws_url;
     std::string api_quote_token;
-    std::string session_token; 
 
     void populate_class_attrs();
     void setup_messages();
+
+    client c;
+    connection_hdl conn_hdl;
+    std::thread keep_alive_thread;
 
 public:
     DX_LinkStreamer(
@@ -40,6 +55,9 @@ public:
     );
 
     ~DX_LinkStreamer();
+
+    void send(const nlohmann::json& msg);
+    void run();
 };
 
 #endif // DX_LINKSTREAMER_H
