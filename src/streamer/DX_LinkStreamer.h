@@ -13,6 +13,7 @@
 #include <mutex>
 
 #include "TastyWorks.h"
+#include "../marketquote/MarketQuote.hpp"
 
 typedef websocketpp::client<websocketpp::config::asio_tls_client> client;
 
@@ -58,6 +59,8 @@ public:
 
     void send(const nlohmann::json& msg);
     void run();
+
+    std::optional<double> safe_parse_quote(const nlohmann::json& pckt, const std::string& key);
 };
 
 #endif // DX_LINKSTREAMER_H

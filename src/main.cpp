@@ -28,8 +28,7 @@ int main(int argc, char** argv)
             throw std::runtime_error("dxlStreamer null pointer");
         }
         dxlStreamer->run();
-        // TODO: check market stream data in seconds, minutes etc
-
+        
         // Develop PostgreSQL db; read and write
 
         // Develop Algorithm class (consumes db data) : (VolumeWeightedMA)

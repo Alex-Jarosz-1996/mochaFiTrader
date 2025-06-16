@@ -1,4 +1,8 @@
+#include <stdexcept>
+#include <exception>
+
 #include "DX_LinkStreamer.h"
+#include "../marketquote/MarketQuote.hpp"
 
 DX_LinkStreamer::DX_LinkStreamer(
     const std::string& instrument_type, 
@@ -84,7 +88,7 @@ void DX_LinkStreamer::setup_messages()
 void DX_LinkStreamer::send(const nlohmann::json& msg)
 {
     c.send(conn_hdl, msg.dump(), websocketpp::frame::opcode::text);
-    std::cout << "Sent: " << msg.dump() << std::endl;
+    // std::cout << "Sent: " << msg.dump() << std::endl;
 }
 
 void DX_LinkStreamer::run()
@@ -106,7 +110,7 @@ void DX_LinkStreamer::run()
         // Start periodic keep-alive and subscription
         keep_alive_thread = std::thread([this]() {
             while (true) {
-                std::this_thread::sleep_for(std::chrono::seconds(2));
+                std::this_thread::sleep_for(std::chrono::seconds(3));
                 send(feed_subscription_msg);
                 send(keep_alive_msg);
             }
@@ -115,7 +119,35 @@ void DX_LinkStreamer::run()
 
     // message handler
     c.set_message_handler([this](connection_hdl, client::message_ptr msg) {
-        std::cout << "Received: " << msg->get_payload() << std::endl;
+        // std::cout << "Received: " << msg->get_payload() << std::endl;
+        try
+        {
+            nlohmann::json pckt = nlohmann::json::parse(msg->get_payload());
+
+            if (pckt["type"] == "FEED_DATA" && pckt.contains("data"))
+            {
+                for (const auto& entry : pckt["data"])
+                {
+                    MarketQuote quote;
+                    quote.symbol = entry.value("eventSymbol", "");
+                    quote.timestamp = std::chrono::system_clock::now();
+                    
+                    quote.price = safe_parse_quote(entry, "price");
+                    quote.bidPrice = safe_parse_quote(entry, "bidPrice");
+                    quote.askPrice = safe_parse_quote(entry, "askPrice");
+                    quote.dayVolume = safe_parse_quote(entry, "dayVolume");
+                    quote.size = safe_parse_quote(entry, "size");
+                    quote.bidSize = safe_parse_quote(entry, "bidSize");
+                    quote.askSize = safe_parse_quote(entry, "askSize");
+
+                    std::cout << "Quote packet generated. " << std::endl;
+                }
+            }
+        }
+        catch (const std::exception& e)
+        {
+            throw std::runtime_error(e.what());
+        }
     });
 
     // tls init handler for secure connections
@@ -140,4 +172,14 @@ void DX_LinkStreamer::run()
     c.connect(con);
 
     c.run();
+}
+
+std::optional<double> DX_LinkStreamer::safe_parse_quote(const nlohmann::json& pckt, const std::string& key)
+{
+    if (pckt.contains(key) && pckt[key].is_number())
+    {
+        return pckt[key].get<double>();
+    }
+
+    return std::nullopt;
 }
