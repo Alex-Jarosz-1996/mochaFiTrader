@@ -3,26 +3,36 @@
 
 #include "DX_LinkStreamer.h"
 #include "../marketquote/MarketQuote.hpp"
+#include "../database/DB_Client.h"
 
 DX_LinkStreamer::DX_LinkStreamer(
     const std::string& instrument_type, 
     const std::string& instrument, 
-    TastyWorksClient& twClientInstance
-) : instrument_type(instrument_type), instrument(instrument), twClientInstance(twClientInstance)
+    TastyWorksClient& twClient,
+    DB_Client& dbClient
+) : instrument_type(instrument_type), instrument(instrument), twClient(twClient), dbClient(dbClient)
 {
+    // define appropriate feed parameters
     populate_class_attrs();
-    setup_messages();
+
+    // declare feed messages
+    construct_setup_msg();
+    construct_authorize_msg();
+    construct_channel_request_msg();
+    construct_feed_setup_msg();
+    construct_feed_subscription_msg();
+    construct_keep_alive_msg();
 }
 
 DX_LinkStreamer::~DX_LinkStreamer() {}
 
 void DX_LinkStreamer::populate_class_attrs()
 {
-    ws_url = twClientInstance._dx_link_url;
-    api_quote_token = twClientInstance._api_quote_token;
+    ws_url = twClient._dx_link_url;
+    api_quote_token = twClient._api_quote_token;
 }
 
-void DX_LinkStreamer::setup_messages()
+void DX_LinkStreamer::construct_setup_msg()
 {
     setup_msg = nlohmann::json{
         {"type", "SETUP"},
@@ -31,20 +41,29 @@ void DX_LinkStreamer::setup_messages()
         {"keepaliveTimeout", TIMEOUT},
         {"acceptKeepaliveTimeout", TIMEOUT}
     };
+}
 
+void DX_LinkStreamer::construct_authorize_msg()
+{
     authorize_msg = nlohmann::json{
         {"type", "AUTH"},
         {"channel", SETUP_CHANNEL},
         {"token", api_quote_token}
     };
+}
 
+void DX_LinkStreamer::construct_channel_request_msg()
+{
     channel_request_msg = nlohmann::json{
         {"type", "CHANNEL_REQUEST"},
         {"channel", FEED_CHANNEL},
         {"service", "FEED"},
         {"parameters", {{"contract", "AUTO"}}}
     };
+}
 
+void DX_LinkStreamer::construct_feed_setup_msg()
+{
     feed_setup_msg = nlohmann::json{
         {"type", "FEED_SETUP"},
         {"channel", FEED_CHANNEL},
@@ -62,7 +81,10 @@ void DX_LinkStreamer::setup_messages()
             "eventSymbol", "volatility", "delta", "gamma", "theta", "rho", "vega"
         };
     }
+}
 
+void DX_LinkStreamer::construct_feed_subscription_msg()
+{
     feed_subscription_msg = nlohmann::json{
         {"type", "FEED_SUBSCRIPTION"},
         {"channel", FEED_CHANNEL},
@@ -78,7 +100,10 @@ void DX_LinkStreamer::setup_messages()
             {{"type", "Greeks"}, {"symbol", instrument}}
         );
     }
+}
 
+void DX_LinkStreamer::construct_keep_alive_msg()
+{
     keep_alive_msg = nlohmann::json{
         {"type", "KEEPALIVE"},
         {"channel", FEED_CHANNEL}
@@ -110,7 +135,8 @@ void DX_LinkStreamer::run()
         // Start periodic keep-alive and subscription
         keep_alive_thread = std::thread([this]() {
             while (true) {
-                std::this_thread::sleep_for(std::chrono::seconds(3));
+                
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 send(feed_subscription_msg);
                 send(keep_alive_msg);
             }
@@ -129,8 +155,8 @@ void DX_LinkStreamer::run()
                 for (const auto& entry : pckt["data"])
                 {
                     MarketQuote quote;
+
                     quote.symbol = entry.value("eventSymbol", "");
-                    quote.timestamp = std::chrono::system_clock::now();
                     
                     quote.price = safe_parse_quote(entry, "price");
                     quote.bidPrice = safe_parse_quote(entry, "bidPrice");
@@ -140,7 +166,9 @@ void DX_LinkStreamer::run()
                     quote.bidSize = safe_parse_quote(entry, "bidSize");
                     quote.askSize = safe_parse_quote(entry, "askSize");
 
-                    std::cout << "Quote packet generated. " << std::endl;
+                    dbClient.insert_quote(quote);
+                    
+                    // quote.print_summary();
                 }
             }
         }
@@ -176,10 +204,8 @@ void DX_LinkStreamer::run()
 
 std::optional<double> DX_LinkStreamer::safe_parse_quote(const nlohmann::json& pckt, const std::string& key)
 {
-    if (pckt.contains(key) && pckt[key].is_number())
-    {
+    if (pckt.contains(key) && pckt[key].is_number()) {
         return pckt[key].get<double>();
     }
-
     return std::nullopt;
 }

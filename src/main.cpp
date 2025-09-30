@@ -5,6 +5,7 @@
 
 #include "tastyworks/TastyWorks.h"
 #include "streamer/DX_LinkStreamer.h"
+#include "database/DB_Client.h"
 
 int main(int argc, char** argv)
 {
@@ -13,15 +14,20 @@ int main(int argc, char** argv)
         // declarations
         std::string tradeable_assets = "BTC/USD:CXTALP";
         std::string instrument_type = "options";
+        
+        // database object
+        std::unique_ptr<DB_Client> db = std::make_unique<DB_Client>();
+        
+        // account details
         std::unique_ptr<TastyWorksClient> twClient = std::make_unique<TastyWorksClient>();
         if (twClient == nullptr)
         {
             throw std::runtime_error("twClient null pointer");
         }
 
-        // Developer market data streamer
+        // market data streamer
         std::unique_ptr<DX_LinkStreamer> dxlStreamer = std::make_unique<DX_LinkStreamer>(
-            instrument_type, tradeable_assets, *twClient
+            instrument_type, tradeable_assets, *twClient, *db
         );
         if (dxlStreamer == nullptr)
         {

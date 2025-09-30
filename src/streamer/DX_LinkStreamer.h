@@ -14,6 +14,7 @@
 
 #include "TastyWorks.h"
 #include "../marketquote/MarketQuote.hpp"
+#include "../database/DB_Client.h"
 
 typedef websocketpp::client<websocketpp::config::asio_tls_client> client;
 
@@ -24,7 +25,8 @@ private:
     // required for class
     std::string instrument_type;
     std::string instrument;
-    TastyWorksClient& twClientInstance;
+    TastyWorksClient& twClient;
+    DB_Client& dbClient;
 
     const int TIMEOUT = 5; // seconds
     const int SETUP_CHANNEL = 0;
@@ -42,7 +44,13 @@ private:
     std::string api_quote_token;
 
     void populate_class_attrs();
-    void setup_messages();
+    
+    void construct_setup_msg();
+    void construct_authorize_msg();
+    void construct_channel_request_msg();
+    void construct_feed_setup_msg();
+    void construct_feed_subscription_msg();
+    void construct_keep_alive_msg();
 
     client c;
     connection_hdl conn_hdl;
@@ -52,7 +60,8 @@ public:
     DX_LinkStreamer(
         const std::string& instrument_type, 
         const std::string& instrument, 
-        TastyWorksClient& twClientInstance
+        TastyWorksClient& twClient,
+        DB_Client& dbClient
     );
 
     ~DX_LinkStreamer();
