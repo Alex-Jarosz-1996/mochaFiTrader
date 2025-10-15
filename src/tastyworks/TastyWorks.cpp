@@ -5,6 +5,8 @@
 #include <cpr/cpr.h>
 #include <nlohmann/json.hpp>
 
+#include "../config/Config.h"
+
 TastyWorksClient::TastyWorksClient()
 {
     loadConfig();
@@ -55,21 +57,10 @@ void TastyWorksClient::logout()
 
 void TastyWorksClient::loadConfig()
 {
-    std::ifstream file("config.json");
-    if (!file.is_open())
-    {
-        std::cerr << "Could not open mochaFiTrader config.json" << std::endl;
-        return;
-    }
-
-    nlohmann::json config;
-    file >> config;
-    file.close();
-
-    BASE_URL = config.value("TASTYWORKS_BASE_URL", "");
-    LOGIN = config.value("TASTYWORKS_LOGIN", "");
-    PASSWORD = config.value("TASTYWORKS_PASSWORD", "");
-    ACCOUNT_NUMBER = config.value("TASTYWORKS_ACCOUNT_NUMBER", "");
+    BASE_URL = Config::get_config_value("TASTYWORKS_BASE_URL");
+    LOGIN = Config::get_config_value("TASTYWORKS_LOGIN");
+    PASSWORD = Config::get_config_value("TASTYWORKS_PASSWORD");
+    ACCOUNT_NUMBER = Config::get_config_value("TASTYWORKS_ACCOUNT_NUMBER");
     REMEMBER_ME = true;
 }
 

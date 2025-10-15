@@ -34,15 +34,11 @@ int main(int argc, char** argv)
             throw std::runtime_error("dxlStreamer null pointer");
         }
         dxlStreamer->run();
-        
-        // Develop PostgreSQL db; read and write
 
         // Develop Algorithm class (consumes db data) : (VolumeWeightedMA)
 
         // Develop trade submission class
         // TODO: check whether make orders in seconds, minutes basis etc
-
-        std::cout << "Successfully completed project workflow" << std::endl;
 
     } 
     

@@ -2,10 +2,10 @@
 #include <pqxx/pqxx>
 #include <iostream>
 #include <chrono>
-#include <fstream>
 #include <nlohmann/json.hpp>
 
 #include "../marketquote/MarketQuote.hpp"
+#include "../config/Config.h"
 
 DB_Client::DB_Client()
 {
@@ -17,18 +17,7 @@ DB_Client::~DB_Client(){ };
 
 void DB_Client::loadConfig()
 {
-    std::ifstream file("config.json");
-    if (!file.is_open())
-    {
-        std::cerr << "Could not open mochaFiTrader config.json" << std::endl;
-        return;
-    }
-
-    nlohmann::json config;
-    file >> config;
-    file.close();
-
-    CONNECTION_STR = config.value("DB_CREDENTIALS", "");
+    CONNECTION_STR = Config::get_config_value("DB_CREDENTIALS");
 }
 
 void DB_Client::create_db_if_not_exists()

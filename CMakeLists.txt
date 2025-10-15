@@ -13,6 +13,7 @@ set(SOURCES
     src/tastyworks/TastyWorks.cpp
     src/streamer/DX_LinkStreamer.cpp
     src/database/DB_Client.cpp
+    src/config/Config.cpp
 )
 
 # Your project headers
@@ -20,6 +21,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src/tastyworks
     ${CMAKE_SOURCE_DIR}/src/streamer
     ${CMAKE_SOURCE_DIR}/src/database
+    ${CMAKE_SOURCE_DIR}/src/config
 )
 
 # -------------------------
@@ -71,6 +73,7 @@ find_package(httplib CONFIG REQUIRED)
 add_executable(runTests 
     tests/test_TastyWorks.cpp
     src/tastyworks/TastyWorks.cpp
+    src/config/Config.cpp
 )
 
 target_link_libraries(runTests PRIVATE
