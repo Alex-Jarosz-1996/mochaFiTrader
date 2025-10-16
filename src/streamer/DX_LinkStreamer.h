@@ -11,6 +11,7 @@
 #include <thread>
 #include <functional>
 #include <mutex>
+#include <atomic>
 
 #include "TastyWorks.h"
 #include "../marketquote/MarketQuote.hpp"
@@ -21,55 +22,66 @@ typedef websocketpp::client<websocketpp::config::asio_tls_client> client;
 using websocketpp::connection_hdl;
 
 class DX_LinkStreamer {
-private:
-    // required for class
-    std::string instrument_type;
-    std::string instrument;
-    TastyWorksClient& twClient;
-    DB_Client& dbClient;
+    public:
+        using QuoteCallback = std::function<void(const MarketQuote&)>;
 
-    const int TIMEOUT = 5; // seconds
-    const int SETUP_CHANNEL = 0;
-    const int FEED_CHANNEL = 3;
+    private:
+        // required for class
+        TastyWorksClient& twClient;
 
-    nlohmann::json setup_msg;
-    nlohmann::json authorize_msg;
-    nlohmann::json channel_request_msg;
-    nlohmann::json feed_setup_msg;
-    nlohmann::json feed_subscription_msg;
-    nlohmann::json keep_alive_msg;
+        QuoteCallback on_quote;
 
-    // from TastyWorksClient class    
-    std::string ws_url;
-    std::string api_quote_token;
+        std::string instrument_type;
+        std::string tradeable_assets;
 
-    void populate_class_attrs();
-    
-    void construct_setup_msg();
-    void construct_authorize_msg();
-    void construct_channel_request_msg();
-    void construct_feed_setup_msg();
-    void construct_feed_subscription_msg();
-    void construct_keep_alive_msg();
+        const int TIMEOUT = 5; // seconds
+        const int SETUP_CHANNEL = 0;
+        const int FEED_CHANNEL = 3;
 
-    client c;
-    connection_hdl conn_hdl;
-    std::thread keep_alive_thread;
+        nlohmann::json setup_msg;
+        nlohmann::json authorize_msg;
+        nlohmann::json channel_request_msg;
+        nlohmann::json feed_setup_msg;
+        nlohmann::json feed_subscription_msg;
+        nlohmann::json keep_alive_msg;
 
-public:
-    DX_LinkStreamer(
-        const std::string& instrument_type, 
-        const std::string& instrument, 
-        TastyWorksClient& twClient,
-        DB_Client& dbClient
-    );
+        // from TastyWorksClient class    
+        std::string ws_url;
+        std::string api_quote_token;
 
-    ~DX_LinkStreamer();
+        void populate_class_attrs();
+        
+        void construct_setup_msg();
+        void construct_authorize_msg();
+        void construct_channel_request_msg();
+        void construct_feed_setup_msg();
+        void construct_feed_subscription_msg();
+        void construct_keep_alive_msg();
 
-    void send(const nlohmann::json& msg);
-    void run();
+        client c;
+        connection_hdl conn_hdl;
+        std::thread keep_alive_thread;
 
-    std::optional<double> safe_parse_quote(const nlohmann::json& pckt, const std::string& key);
+        void send(const nlohmann::json& msg);
+        void configure_channels();
+        void send_initial_msgs();
+        void send_periodic_msgs();
+        MarketQuote parse_quote(const nlohmann::json& entry);
+        void on_open(connection_hdl hdl);
+        void on_msg(client::message_ptr msg);
+        std::shared_ptr<boost::asio::ssl::context> create_tls_context();
+        void setup_handlers();
+        client::connection_ptr create_connection();
+        std::optional<double> safe_parse_quote(const nlohmann::json& pckt, const std::string& key);
+
+    public:
+        DX_LinkStreamer(
+            TastyWorksClient& twClient
+        );
+        ~DX_LinkStreamer();
+
+        void set_on_quote(QuoteCallback qcb);
+        void run();
 };
 
 #endif // DX_LINKSTREAMER_H
