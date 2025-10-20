@@ -30,6 +30,7 @@ void DB_Client::create_db_if_not_exists()
         {
             std::string sql = "CREATE TABLE IF NOT EXISTS market_quotes(" \
                               "id SERIAL PRIMARY KEY," \
+                              "timestamp TIMESTAMP NOT NULL," \
                               "symbol TEXT NOT NULL," \
                               "price DOUBLE PRECISION," \
                               "bid_price DOUBLE PRECISION," \
@@ -37,8 +38,7 @@ void DB_Client::create_db_if_not_exists()
                               "day_volume DOUBLE PRECISION," \
                               "size DOUBLE PRECISION," \
                               "bid_size DOUBLE PRECISION," \
-                              "ask_size DOUBLE PRECISION," \
-                              "timestamp TIMESTAMP NOT NULL );";
+                              "ask_size DOUBLE PRECISION );";
             pqxx::work work(c);
 
             work.exec(sql);
@@ -66,12 +66,15 @@ void DB_Client::insert_quote(const MarketQuote& quote)
         
         std::string sql = R"(
             INSERT INTO market_quotes (
-                symbol, price, bid_price, ask_price,
-                day_volume, size, bid_size, ask_size, timestamp
+                timestamp, symbol, price, bid_price, ask_price,
+                day_volume, size, bid_size, ask_size
             ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
         )";
 
         pqxx::params p;
+
+        std::string date_timestamp = generate_current_timestamp();
+        p.append(date_timestamp);
         
         p.append(quote.symbol);
 
@@ -109,10 +112,6 @@ void DB_Client::insert_quote(const MarketQuote& quote)
             p.append(quote.askSize.value());
         else
             p.append(nullptr);
-
-        // Timestamp string
-        std::string date_timestamp = generate_current_timestamp();
-        p.append(date_timestamp);
 
         txn.exec(sql, p);
         txn.commit();
