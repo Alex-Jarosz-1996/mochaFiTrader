@@ -2,6 +2,8 @@
 #include <memory>
 #include <stdexcept>
 #include <exception>
+#include <map>
+#include <vector>
 
 #include "tastyworks/TastyWorks.h"
 #include "streamer/DX_LinkStreamer.h"
@@ -25,6 +27,7 @@ int main(int argc, char** argv)
         dxlStreamer->set_on_quote([&](const MarketQuote& quote)
         {
             dbClient->insert_quote(quote);
+            std::optional<std::vector<MarketQuote>> quote_from_db = dbClient->get_quote();
         });
         dxlStreamer->run();
 

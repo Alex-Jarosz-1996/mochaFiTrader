@@ -3,6 +3,8 @@
 #include <iostream>
 #include <chrono>
 #include <nlohmann/json.hpp>
+#include <optional>
+#include <map>
 
 #include "../marketquote/MarketQuote.hpp"
 #include "../config/Config.h"
@@ -74,44 +76,16 @@ void DB_Client::insert_quote(const MarketQuote& quote)
         pqxx::params p;
 
         std::string date_timestamp = generate_current_timestamp();
-        p.append(date_timestamp);
-        
+        p.append(date_timestamp);        
         p.append(quote.symbol);
 
-        if (quote.price.has_value())
-            p.append(quote.price.value());
-        else
-            p.append(nullptr);
-
-        if (quote.bidPrice.has_value())
-            p.append(quote.bidPrice.value());
-        else
-            p.append(nullptr);
-
-        if (quote.askPrice.has_value())
-            p.append(quote.askPrice.value());
-        else
-            p.append(nullptr);
-
-        if (quote.dayVolume.has_value())
-            p.append(quote.dayVolume.value());
-        else
-            p.append(nullptr);
-
-        if (quote.size.has_value())
-            p.append(quote.size.value());
-        else
-            p.append(nullptr);
-
-        if (quote.bidSize.has_value())
-            p.append(quote.bidSize.value());
-        else
-            p.append(nullptr);
-
-        if (quote.askSize.has_value())
-            p.append(quote.askSize.value());
-        else
-            p.append(nullptr);
+        write_to_db(p, quote.price);
+        write_to_db(p, quote.bidPrice);
+        write_to_db(p, quote.askPrice);
+        write_to_db(p, quote.dayVolume);
+        write_to_db(p, quote.size);
+        write_to_db(p, quote.bidSize);
+        write_to_db(p, quote.askSize);
 
         txn.exec(sql, p);
         txn.commit();
@@ -123,6 +97,56 @@ void DB_Client::insert_quote(const MarketQuote& quote)
         std::cerr << "Failed to insert quote: " << e.what() << std::endl;
     }
 }
+
+std::optional<std::vector<MarketQuote>> DB_Client::get_quote()
+{
+    try
+    {
+        pqxx::connection c(CONNECTION_STR);
+        pqxx::work txn{c};
+
+        pqxx::result count_result = txn.exec("SELECT COUNT(*) FROM market_quotes;");
+        size_t row_count = count_result[0][0].as<size_t>();
+
+        std::cout << "Number of rows discovered: '" << row_count << "'." << std::endl;
+
+        if (row_count < 100)
+        {
+            txn.commit();
+            return std::nullopt;
+        }
+
+        pqxx::result res = txn.exec(
+            "SELECT symbol, price, bid_price, ask_price, day_volume, size, bid_size, ask_size "
+            "FROM market_quotes ORDER BY id DESC LIMIT 100;"
+        );
+        txn.commit();
+
+        std::vector<MarketQuote> mkt_qts;
+        mkt_qts.reserve(res.size());
+        for (const auto& row : res)
+        {
+            MarketQuote q;
+            q.symbol    = row["symbol"].c_str();
+            q.price     = get_from_db<double>(row, "price");
+            q.bidPrice  = get_from_db<double>(row, "bid_price");
+            q.askPrice  = get_from_db<double>(row, "ask_price");
+            q.dayVolume = get_from_db<double>(row, "day_volume");
+            q.size      = get_from_db<double>(row, "size");
+            q.bidSize   = get_from_db<double>(row, "bid_size");
+            q.askSize   = get_from_db<double>(row, "ask_size");
+            mkt_qts.push_back(q);
+        }
+
+        return mkt_qts;
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "[DB_Client::get_quote] Error: " << e.what() << std::endl;
+        return std::nullopt;
+    }
+}
+
 
 std::string DB_Client::generate_current_timestamp()
 {

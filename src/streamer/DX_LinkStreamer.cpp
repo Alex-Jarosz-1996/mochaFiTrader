@@ -160,14 +160,12 @@ MarketQuote DX_LinkStreamer::parse_quote(const nlohmann::json& entry)
 
 void DX_LinkStreamer::on_open(connection_hdl hdl)
 {
-    bool running = true;
-
     conn_hdl = hdl;
     send_initial_msgs();
 
     keep_alive_thread = std::thread([this]() {
-        while (true) {
-            
+        while (true)
+        {    
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             send_periodic_msgs();
         }
@@ -184,6 +182,8 @@ void DX_LinkStreamer::on_msg(client::message_ptr msg)
         {
             for (const auto& entry : pckt["data"])
             {
+                // std::cout << "Entry: " << entry << std::endl;
+                
                 MarketQuote quote = parse_quote(entry);
                 if (on_quote) on_quote(quote);
             }
