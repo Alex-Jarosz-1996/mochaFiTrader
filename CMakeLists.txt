@@ -14,6 +14,7 @@ set(SOURCES
     src/streamer/DX_LinkStreamer.cpp
     src/database/DB_Client.cpp
     src/config/Config.cpp
+    src/log/Log.cpp
 )
 
 # Your project headers
@@ -22,6 +23,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src/streamer
     ${CMAKE_SOURCE_DIR}/src/database
     ${CMAKE_SOURCE_DIR}/src/config
+    ${CMAKE_SOURCE_DIR}/src/log
 )
 
 # -------------------------
@@ -35,6 +37,9 @@ find_package(Threads REQUIRED)
 
 # PostgreSQL C library (libpq)
 find_package(PostgreSQL REQUIRED)
+
+# logging
+find_package(spdlog CONFIG REQUIRED)
 
 # libpqxx (via pkg-config since no CMake config file exists)
 find_package(PkgConfig REQUIRED)
@@ -61,6 +66,7 @@ target_link_libraries(mochaFiTrader PRIVATE
     Threads::Threads
     ${LIBPQXX_LIBRARIES}
     PostgreSQL::PostgreSQL
+    spdlog::spdlog
 )
 
 # -------------------------

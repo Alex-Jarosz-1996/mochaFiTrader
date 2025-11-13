@@ -1,3 +1,11 @@
+# build output
 build/
+
+# project configs
 config.json
+
+# clion files
 /.vscode
+
+# logging output
+src/log/*.txt
