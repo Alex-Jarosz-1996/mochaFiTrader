@@ -45,6 +45,8 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBPQXX REQUIRED libpqxx)
 
+find_package(fmt CONFIG REQUIRED)
+
 # -------------------------
 # Executable
 # -------------------------
@@ -67,6 +69,7 @@ target_link_libraries(mochaFiTrader PRIVATE
     ${LIBPQXX_LIBRARIES}
     PostgreSQL::PostgreSQL
     spdlog::spdlog
+    fmt::fmt
 )
 
 # -------------------------
@@ -75,11 +78,13 @@ target_link_libraries(mochaFiTrader PRIVATE
 enable_testing()
 find_package(GTest REQUIRED)
 find_package(httplib CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
 
-add_executable(runTests 
+add_executable(runTests
     tests/test_TastyWorks.cpp
     src/tastyworks/TastyWorks.cpp
     src/config/Config.cpp
+    src/log/Log.cpp
 )
 
 target_link_libraries(runTests PRIVATE
@@ -89,6 +94,7 @@ target_link_libraries(runTests PRIVATE
     pthread
     cpr::cpr
     nlohmann_json::nlohmann_json
+    fmt::fmt
 )
 
 add_test(NAME tests COMMAND runTests)

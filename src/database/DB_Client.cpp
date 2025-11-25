@@ -8,6 +8,7 @@
 
 #include "../marketquote/MarketQuote.hpp"
 #include "../config/Config.h"
+#include "../log/Log.h"
 
 DB_Client::DB_Client()
 {
@@ -46,11 +47,11 @@ void DB_Client::create_db_if_not_exists()
             work.exec(sql);
             work.commit();
 
-            std::cout << "Table created." << std::endl;
+            LOG_INFO("Table created.", "DB_CLIENT");
         }
         else
         {
-            std::cout << "Did not create table." << std::endl;
+            LOG_INFO("Did not create table.", "DB_CLIENT");
         }
 
     } catch (const std::exception& e)
@@ -90,7 +91,8 @@ void DB_Client::insert_quote(const MarketQuote& quote)
         txn.exec(sql, p);
         txn.commit();
         
-        std::cout << "Quote inserted for: " << quote.symbol << " Current timestamp: " << date_timestamp << std::endl;
+        LOG_INFO("Quote inserted for: " + quote.symbol, "DB_CLIENT");
+        LOG_INFO("Current timestamp: " + date_timestamp, "DB_CLIENT");
 
     } catch (const std::exception& e)
     {
@@ -108,7 +110,7 @@ std::optional<std::vector<MarketQuote>> DB_Client::get_quote()
         pqxx::result count_result = txn.exec("SELECT COUNT(*) FROM market_quotes;");
         size_t row_count = count_result[0][0].as<size_t>();
 
-        std::cout << "Number of rows discovered: '" << row_count << "'." << std::endl;
+        LOG_INFO("Number of rows discovered: " + std::to_string(row_count), "DB_CLIENT");
 
         if (row_count < 100)
         {

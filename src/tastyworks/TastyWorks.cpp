@@ -6,6 +6,7 @@
 #include <nlohmann/json.hpp>
 
 #include "../config/Config.h"
+#include "../log/Log.h"
 
 TastyWorksClient::TastyWorksClient()
 {
@@ -95,7 +96,7 @@ void TastyWorksClient::getSessionToken()
 
     if (r.status_code == 201)
     {
-        std::cout << "Successfully logged into user account." << std::endl;
+        LOG_INFO("Successfully logged into user account.", "TASTYWORKS");
 
         auto json = nlohmann::json::parse(r.text);
         
@@ -111,19 +112,19 @@ void TastyWorksClient::getSessionToken()
 
 void TastyWorksClient::confirmSessionTokenGenerated()
 {
-    std::cout << "Checking if session token was generated." << std::endl;
+    LOG_INFO("Checking if session token was generated.", "TASTYWORKS");
     
     if (TastyWorksClient::_session_token == "")
     {
         throw std::invalid_argument("No session token generated. Check login details.");
     }
 
-    std::cout << "Session token was generated." << std::endl;
+    LOG_INFO("Session token was generated.", "TASTYWORKS");
 }
 
 void TastyWorksClient::confirmUserAccountActive()
 {
-    std::cout << "Checking if user account is active." << std::endl;
+    LOG_INFO("Checking if user account is active.", "TASTYWORKS");
     
     std::string account_active_url = BASE_URL + "/customers/me/accounts/" + ACCOUNT_NUMBER;
 
@@ -150,7 +151,7 @@ void TastyWorksClient::confirmUserAccountActive()
             // active = 1 / inactive = 0
             if (!is_inactive)
             {
-                std::cout << "User account is active." << std::endl;
+                LOG_INFO("User account is active.", "TASTYWORKS");
                 return;
             }
             
@@ -165,7 +166,7 @@ void TastyWorksClient::confirmUserAccountActive()
 
 void TastyWorksClient::getAPI_QuoteToken()
 {
-    std::cout << "Checking if can retrieve API quote token." << std::endl;
+    LOG_INFO("Checking if can retrieve API quote token.", "TASTYWORKS");
 
     std::string api_quote_token_url = BASE_URL + "/api-quote-tokens";
 
