@@ -9,14 +9,13 @@
 #include "tastyworks/TastyWorks.h"
 #include "streamer/DX_LinkStreamer.h"
 #include "database/DB_Client.h"
-#include "marketquote/MarketQuote.hpp"
+#include "marketquote/MarketQuote.h"
 #include "log/Log.h"
 
 int main(int argc, char** argv)
 {
     try 
     {
-        // logger initialisation
         Log::init();
         LOG_INFO("Starting mochaFiTrader.", "MAIN");
         
@@ -41,14 +40,6 @@ int main(int argc, char** argv)
             std::optional<std::vector<MarketQuote>> quote_from_db = dbClient->get_quote();
         });
         dxlStreamer->run();
-        
-        // configure tests to work
-
-        // Develop Algorithm class (consumes db data) : (VolumeWeightedMA)
-
-        // Develop trade submission class
-        // TODO: check whether make orders in seconds, minutes basis etc
-
     } 
     
     catch (const std::invalid_argument& e)

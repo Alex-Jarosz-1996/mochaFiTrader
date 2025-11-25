@@ -5,7 +5,7 @@
 #include <vector>
 #include <map>
 
-#include "../marketquote/MarketQuote.hpp"
+#include "../marketquote/MarketQuote.h"
 
 class DB_Client
 {

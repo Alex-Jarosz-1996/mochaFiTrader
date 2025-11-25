@@ -6,7 +6,7 @@
 #include <optional>
 #include <map>
 
-#include "../marketquote/MarketQuote.hpp"
+#include "../marketquote/MarketQuote.h"
 #include "../config/Config.h"
 #include "../log/Log.h"
 

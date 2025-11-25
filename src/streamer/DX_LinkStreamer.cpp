@@ -2,7 +2,7 @@
 #include <exception>
 
 #include "DX_LinkStreamer.h"
-#include "../marketquote/MarketQuote.hpp"
+#include "../marketquote/MarketQuote.h"
 #include "../database/DB_Client.h"
 #include "../config/Config.h"
 
