@@ -80,14 +80,30 @@ find_package(GTest REQUIRED)
 find_package(httplib CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 
-add_executable(runTests
-    tests/test_TastyWorks.cpp
-    src/tastyworks/TastyWorks.cpp
+add_executable(runUnitTests
+    tests/unit/main.cpp    
+    tests/unit/test_Config.cpp
+    tests/unit/test_DB_Client.cpp
+    tests/unit/test_DX_LinkStreamer.cpp
+    tests/unit/test_Log.cpp
+    tests/unit/test_MarketQuote.cpp
+    tests/unit/test_TastyWorks.cpp
     src/config/Config.cpp
+    src/database/DB_Client.cpp
+    src/streamer/DX_LinkStreamer.cpp
     src/log/Log.cpp
+    src/tastyworks/TastyWorks.cpp
 )
 
-target_link_libraries(runTests PRIVATE
+target_include_directories(runUnitTests PRIVATE
+    ${LIBPQXX_INCLUDE_DIRS}
+)
+
+target_link_directories(runUnitTests PRIVATE
+    ${LIBPQXX_LIBRARY_DIRS}
+)
+
+target_link_libraries(runUnitTests PRIVATE
     GTest::GTest
     GTest::Main
     httplib::httplib
@@ -95,9 +111,10 @@ target_link_libraries(runTests PRIVATE
     cpr::cpr
     nlohmann_json::nlohmann_json
     fmt::fmt
+    ${LIBPQXX_LIBRARIES}
 )
 
-add_test(NAME tests COMMAND runTests)
+add_test(NAME tests COMMAND runUnitTests)
 
 # -------------------------
 # Debug Info

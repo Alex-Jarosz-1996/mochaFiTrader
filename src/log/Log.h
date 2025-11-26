@@ -47,7 +47,7 @@ private:
 };
 
 #define LOG_INFO(msg, module)  Log::log(spdlog::level::info, msg, __FILE__, __LINE__, module)
-// #define LOG_DEBUG(msg, module) Log::log(spdlog::level::debug, msg, __FILE__, __LINE__, module)
-// #define LOG_WARN(msg, module)  Log::log(spdlog::level::warn, msg, __FILE__, __LINE__, module)
+#define LOG_DEBUG(msg, module) Log::log(spdlog::level::debug, msg, __FILE__, __LINE__, module)
+#define LOG_WARN(msg, module)  Log::log(spdlog::level::warn, msg, __FILE__, __LINE__, module)
 #define LOG_ERROR(msg, module) Log::log(spdlog::level::err, msg, __FILE__, __LINE__, module)
 #define LOG_FILE_ONLY(msg, module) Log::log(spdlog::level::info, msg, __FILE__, __LINE__, module, false)
