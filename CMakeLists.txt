@@ -9,6 +9,7 @@ set(CMAKE_BUILD_TYPE Debug)
 # Source files
 # -------------------------
 set(SOURCES
+    # source files
     src/main.cpp
     src/tastyworks/TastyWorks.cpp
     src/streamer/DX_LinkStreamer.cpp
@@ -81,13 +82,16 @@ find_package(httplib CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 
 add_executable(runUnitTests
-    tests/unit/main.cpp    
+    # unit tests
+    tests/unit/main.cpp
     tests/unit/test_Config.cpp
     tests/unit/test_DB_Client.cpp
     tests/unit/test_DX_LinkStreamer.cpp
     tests/unit/test_Log.cpp
     tests/unit/test_MarketQuote.cpp
     tests/unit/test_TastyWorks.cpp
+    
+    # source files
     src/config/Config.cpp
     src/database/DB_Client.cpp
     src/streamer/DX_LinkStreamer.cpp
@@ -114,7 +118,94 @@ target_link_libraries(runUnitTests PRIVATE
     ${LIBPQXX_LIBRARIES}
 )
 
-add_test(NAME tests COMMAND runUnitTests)
+add_test(NAME UnitTests COMMAND runUnitTests)
+
+# -------------------------
+# Integration Tests
+# -------------------------
+
+add_executable(runIntegrationTests
+    # integration tests
+    tests/integration/main.cpp
+    tests/integration/test_DB_Integration.cpp
+    tests/integration/test_LiveStreamIntegrationTest.cpp
+
+    # source files
+    src/config/Config.cpp
+    src/database/DB_Client.cpp
+    src/tastyworks/TastyWorks.cpp
+    src/log/Log.cpp
+    src/streamer/DX_LinkStreamer.cpp
+)
+
+target_include_directories(runIntegrationTests PRIVATE
+    ${LIBPQXX_INCLUDE_DIRS}
+)
+
+target_link_directories(runIntegrationTests PRIVATE
+    ${LIBPQXX_LIBRARY_DIRS}
+)
+
+target_link_libraries(runIntegrationTests PRIVATE
+    GTest::GTest
+    GTest::Main
+    httplib::httplib
+    pthread
+    cpr::cpr
+    nlohmann_json::nlohmann_json
+    fmt::fmt
+    ${LIBPQXX_LIBRARIES}
+)
+
+add_test(NAME IntegrationTests COMMAND runIntegrationTests)
+
+# -------------------------
+# Run All Tests
+# -------------------------
+add_executable(runAllTests
+    # all tests
+    tests/main.cpp
+    
+    # unit tests
+    tests/unit/test_Config.cpp
+    tests/unit/test_DB_Client.cpp
+    tests/unit/test_DX_LinkStreamer.cpp
+    tests/unit/test_Log.cpp
+    tests/unit/test_MarketQuote.cpp
+    tests/unit/test_TastyWorks.cpp
+
+    # integration tests
+    tests/integration/test_DB_Integration.cpp
+    tests/integration/test_LiveStreamIntegrationTest.cpp
+
+    # source files
+    src/config/Config.cpp
+    src/database/DB_Client.cpp
+    src/tastyworks/TastyWorks.cpp
+    src/log/Log.cpp
+    src/streamer/DX_LinkStreamer.cpp
+)
+
+target_include_directories(runAllTests PRIVATE
+    ${LIBPQXX_INCLUDE_DIRS}
+)
+
+target_link_directories(runAllTests PRIVATE
+    ${LIBPQXX_LIBRARY_DIRS}
+)
+
+target_link_libraries(runAllTests PRIVATE
+    GTest::GTest
+    GTest::Main
+    httplib::httplib
+    pthread
+    cpr::cpr
+    nlohmann_json::nlohmann_json
+    fmt::fmt
+    ${LIBPQXX_LIBRARIES}
+)
+
+add_test(NAME AllTests COMMAND runAllTests)
 
 # -------------------------
 # Debug Info
