@@ -18,7 +18,7 @@ set(SOURCES
     src/log/Log.cpp
 )
 
-# Your project headers
+# project headers
 include_directories(
     ${CMAKE_SOURCE_DIR}/src/tastyworks
     ${CMAKE_SOURCE_DIR}/src/streamer
