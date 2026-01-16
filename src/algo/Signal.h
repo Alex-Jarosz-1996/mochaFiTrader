@@ -6,6 +6,6 @@ enum class Signal
     BUY,
     SELL,
     HOLD
-}
+};
 
 #endif // SIGNAL_H

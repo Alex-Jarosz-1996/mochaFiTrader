@@ -13,18 +13,23 @@ set(SOURCES
     src/main.cpp
     src/tastyworks/TastyWorks.cpp
     src/streamer/DX_LinkStreamer.cpp
-    src/database/DB_Client.cpp
     src/config/Config.cpp
     src/log/Log.cpp
+    src/algo/algo/Algo.cpp
+    src/algo/macd/MACD.cpp
+    src/algo/ticktype/TickType.cpp
 )
 
 # project headers
 include_directories(
     ${CMAKE_SOURCE_DIR}/src/tastyworks
     ${CMAKE_SOURCE_DIR}/src/streamer
-    ${CMAKE_SOURCE_DIR}/src/database
     ${CMAKE_SOURCE_DIR}/src/config
     ${CMAKE_SOURCE_DIR}/src/log
+    ${CMAKE_SOURCE_DIR}/src/algo
+    ${CMAKE_SOURCE_DIR}/src/algo/algo
+    ${CMAKE_SOURCE_DIR}/src/algo/macd
+    ${CMAKE_SOURCE_DIR}/src/algo/ticktype
 )
 
 # -------------------------
@@ -85,18 +90,22 @@ add_executable(runUnitTests
     # unit tests
     tests/unit/main.cpp
     tests/unit/test_Config.cpp
-    tests/unit/test_DB_Client.cpp
     tests/unit/test_DX_LinkStreamer.cpp
     tests/unit/test_Log.cpp
     tests/unit/test_MarketQuote.cpp
     tests/unit/test_TastyWorks.cpp
+    tests/unit/test_Strategy_Algo.cpp
+    tests/unit/test_Strategy_MACD.cpp
     
     # source files
     src/config/Config.cpp
-    src/database/DB_Client.cpp
     src/streamer/DX_LinkStreamer.cpp
     src/log/Log.cpp
     src/tastyworks/TastyWorks.cpp
+    src/algo/algo/Algo.cpp
+    src/algo/macd/MACD.cpp
+    src/algo/ticktype/TickType.cpp
+    tests/test_utils/TestUtils.cpp
 )
 
 target_include_directories(runUnitTests PRIVATE
@@ -127,15 +136,16 @@ add_test(NAME UnitTests COMMAND runUnitTests)
 add_executable(runIntegrationTests
     # integration tests
     tests/integration/main.cpp
-    tests/integration/test_DB_Integration.cpp
     tests/integration/test_LiveStreamIntegrationTest.cpp
 
     # source files
     src/config/Config.cpp
-    src/database/DB_Client.cpp
     src/tastyworks/TastyWorks.cpp
     src/log/Log.cpp
     src/streamer/DX_LinkStreamer.cpp
+    src/algo/algo/Algo.cpp
+    src/algo/macd/MACD.cpp
+    src/algo/ticktype/TickType.cpp
 )
 
 target_include_directories(runIntegrationTests PRIVATE
@@ -168,22 +178,25 @@ add_executable(runAllTests
     
     # unit tests
     tests/unit/test_Config.cpp
-    tests/unit/test_DB_Client.cpp
     tests/unit/test_DX_LinkStreamer.cpp
     tests/unit/test_Log.cpp
     tests/unit/test_MarketQuote.cpp
     tests/unit/test_TastyWorks.cpp
+    tests/unit/test_Strategy_Algo.cpp
+    tests/unit/test_Strategy_MACD.cpp
 
     # integration tests
-    tests/integration/test_DB_Integration.cpp
     tests/integration/test_LiveStreamIntegrationTest.cpp
 
     # source files
     src/config/Config.cpp
-    src/database/DB_Client.cpp
     src/tastyworks/TastyWorks.cpp
     src/log/Log.cpp
     src/streamer/DX_LinkStreamer.cpp
+    src/algo/algo/Algo.cpp
+    src/algo/macd/MACD.cpp
+    src/algo/ticktype/TickType.cpp
+    tests/test_utils/TestUtils.cpp
 )
 
 target_include_directories(runAllTests PRIVATE

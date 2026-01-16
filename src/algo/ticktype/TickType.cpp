@@ -1,14 +1,6 @@
-#ifndef TICKTYPE_H
-#define TICKTYPE_H
+#include "TickType.h"
 
-#include "../marketquote/MarketQuote.h"
-
-enum class TickType
-{
-    Trade,
-    Quote,
-    Unknown
-};
+#include "../../../src/marketquote/MarketQuote.h"
 
 TickType get_tick_type(const MarketQuote& quote)
 {
@@ -31,6 +23,3 @@ TickType get_tick_type(const MarketQuote& quote)
     
     return TickType::Unknown;
 }
-
-
-#endif // TICKTYPE_H

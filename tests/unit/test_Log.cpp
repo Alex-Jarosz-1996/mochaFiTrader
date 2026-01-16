@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "../../src/log/Log.h"
 
-TEST(LogTest, CanInitializeLogger)
+TEST(test_Log, CanInitializeLogger)
 {
     EXPECT_NO_THROW({
         Log::init("src/log/");

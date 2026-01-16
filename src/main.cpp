@@ -8,9 +8,10 @@
 
 #include "tastyworks/TastyWorks.h"
 #include "streamer/DX_LinkStreamer.h"
-#include "database/DB_Client.h"
 #include "marketquote/MarketQuote.h"
 #include "log/Log.h"
+#include "algo/macd/MACD.h"
+#include "algo/Signal.h"
 
 int main(int argc, char** argv)
 {
@@ -18,9 +19,6 @@ int main(int argc, char** argv)
     {
         Log::init();
         LOG_INFO("Starting mochaFiTrader.", "MAIN");
-        
-        LOG_INFO("Initialising DB_Client object.", "MAIN");
-        std::unique_ptr<DB_Client> dbClient = std::make_unique<DB_Client>();
         
         LOG_INFO("Initialising TastyWorksClient object.", "MAIN");
         std::unique_ptr<TastyWorksClient> twClient = std::make_unique<TastyWorksClient>();
@@ -30,14 +28,13 @@ int main(int argc, char** argv)
             *twClient
         );
 
+        LOG_INFO("Initialising MACD object.", "MAIN");
+        std::unique_ptr<MACD> strategy = std::make_unique<MACD>();
+
         LOG_INFO("Triggering data stream.", "MAIN");
         dxlStreamer->set_on_quote([&](const MarketQuote& quote)
         {
-            LOG_FILE_ONLY("Writing quote to db.", "MAIN");
-            dbClient->insert_quote(quote);
-            
-            LOG_FILE_ONLY("Getting quote from db.", "MAIN");
-            std::optional<std::vector<MarketQuote>> quote_from_db = dbClient->get_quote();
+            Signal signal = strategy->generate_trading_signal(quote);
         });
         dxlStreamer->run();
     } 

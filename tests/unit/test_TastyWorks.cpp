@@ -3,7 +3,7 @@
 #include "../../src/tastyworks/TastyWorks.h"
 #include "../../src/log/Log.h"
 
-class TastyWorksClientTestFixture : public ::testing::Test
+class test_TastyWorks : public ::testing::Test
 {
 protected:
     void SetUp() override
@@ -12,7 +12,7 @@ protected:
     }
 };
 
-TEST_F(TastyWorksClientTestFixture, HandlesTokenGeneration)
+TEST_F(test_TastyWorks, HandlesTokenGeneration)
 {
     std::unique_ptr<TastyWorksClient> twClient = std::make_unique<TastyWorksClient>();
     ASSERT_NE(twClient, nullptr);

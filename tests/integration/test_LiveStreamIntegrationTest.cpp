@@ -5,16 +5,13 @@
 
 #include "../../src/tastyworks/TastyWorks.h"
 #include "../../src/streamer/DX_LinkStreamer.h"
-#include "../../src/database/DB_Client.h"
 #include "../../src/marketquote/MarketQuote.h"
 #include "../../src/log/Log.h"
+#include "../../src/algo/macd/MACD.h"
 
 TEST(LiveStreamIntegrationTest, StreamInsertAndRetrieveQuote)
 {
     Log::init();
-    
-    // db
-    std::unique_ptr<DB_Client> dbClient = std::make_unique<DB_Client>();
     
     // tastyworks
     std::unique_ptr<TastyWorksClient> twClient = std::make_unique<TastyWorksClient>();
@@ -24,11 +21,13 @@ TEST(LiveStreamIntegrationTest, StreamInsertAndRetrieveQuote)
         *twClient
     );
 
+    // strategy
+    std::unique_ptr<MACD> strategy = std::make_unique<MACD>();
+
     bool called = false;
     dxlStreamer->set_on_quote([&](const MarketQuote& quote)
     {
-        dbClient->insert_quote(quote);
-        std::optional<std::vector<MarketQuote>> quote_from_db = dbClient->get_quote();
+        Signal signal = strategy->generate_trading_signal(quote);
         called = true;
     });
     

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "../../src/marketquote/MarketQuote.h"
 
-TEST(MarketQuoteTest, DefaultIsNullOrEmptyValue)
+TEST(test_MarketQuote, DefaultIsNullOrEmptyValue)
 {
     MarketQuote q;
     EXPECT_TRUE(q.symbol.empty());
@@ -14,7 +14,7 @@ TEST(MarketQuoteTest, DefaultIsNullOrEmptyValue)
     EXPECT_FALSE(q.askSize.has_value());
 }
 
-TEST(MarketQuoteTest, CanSetAndReadSymbolValue)
+TEST(test_MarketQuote, CanSetAndReadSymbolValue)
 {
     MarketQuote q;
     q.symbol = "BTC/USD";
@@ -22,7 +22,7 @@ TEST(MarketQuoteTest, CanSetAndReadSymbolValue)
     EXPECT_EQ(q.symbol, "BTC/USD");
 }
 
-TEST(MarketQuoteTest, CanSetAndReadPriceValue)
+TEST(test_MarketQuote, CanSetAndReadPriceValue)
 {
     MarketQuote q;
     q.price = 100.5;
@@ -30,7 +30,7 @@ TEST(MarketQuoteTest, CanSetAndReadPriceValue)
     EXPECT_EQ(q.price, 100.5);
 }
 
-TEST(MarketQuoteTest, CanSetAndReadBidPriceValue)
+TEST(test_MarketQuote, CanSetAndReadBidPriceValue)
 {
     MarketQuote q;
     q.bidPrice = 100.0;
@@ -38,7 +38,7 @@ TEST(MarketQuoteTest, CanSetAndReadBidPriceValue)
     EXPECT_EQ(q.bidPrice, 100.0);
 }
 
-TEST(MarketQuoteTest, CanSetAndReadAskPriceValue)
+TEST(test_MarketQuote, CanSetAndReadAskPriceValue)
 {
     MarketQuote q;
     q.askPrice = 101.0;
@@ -46,7 +46,7 @@ TEST(MarketQuoteTest, CanSetAndReadAskPriceValue)
     EXPECT_EQ(q.askPrice, 101.0);
 }
 
-TEST(MarketQuoteTest, CanSetAndReadDayVolumeValue)
+TEST(test_MarketQuote, CanSetAndReadDayVolumeValue)
 {
     MarketQuote q;
     q.dayVolume = 123456.0;
@@ -54,7 +54,7 @@ TEST(MarketQuoteTest, CanSetAndReadDayVolumeValue)
     EXPECT_EQ(q.dayVolume, 123456.0);
 }
 
-TEST(MarketQuoteTest, CanSetAndReadSizeValue)
+TEST(test_MarketQuote, CanSetAndReadSizeValue)
 {
     MarketQuote q;
     q.size = 12321.0;
@@ -62,7 +62,7 @@ TEST(MarketQuoteTest, CanSetAndReadSizeValue)
     EXPECT_EQ(q.size, 12321.0);
 }
 
-TEST(MarketQuoteTest, CanSetAndReadBidSizeValue)
+TEST(test_MarketQuote, CanSetAndReadBidSizeValue)
 {
     MarketQuote q;
     q.bidSize = 12000.0;
@@ -70,7 +70,7 @@ TEST(MarketQuoteTest, CanSetAndReadBidSizeValue)
     EXPECT_EQ(q.bidSize, 12000.0);
 }
 
-TEST(MarketQuoteTest, CanSetAndReadAskSizeValue)
+TEST(test_MarketQuote, CanSetAndReadAskSizeValue)
 {
     MarketQuote q;
     q.askSize = 5000.0;

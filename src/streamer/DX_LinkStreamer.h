@@ -15,7 +15,6 @@
 
 #include "TastyWorks.h"
 #include "../marketquote/MarketQuote.h"
-#include "../database/DB_Client.h"
 
 typedef websocketpp::client<websocketpp::config::asio_tls_client> client;
 

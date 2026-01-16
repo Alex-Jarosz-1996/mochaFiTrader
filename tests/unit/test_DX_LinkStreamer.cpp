@@ -4,7 +4,7 @@
 #include "../../src/log/Log.h"
 #include "../../src/streamer/DX_LinkStreamer.h"
 
-class DXLinkStreamerTestFixture : public ::testing::Test
+class test_DX_LinkStreamer : public ::testing::Test
 {
 protected:
     void SetUp() override
@@ -13,7 +13,7 @@ protected:
     }
 };
 
-TEST_F(DXLinkStreamerTestFixture, CanConstructStreamer)
+TEST_F(test_DX_LinkStreamer, CanConstructStreamer)
 {
     std::unique_ptr<TastyWorksClient> twClient = std::make_unique<TastyWorksClient>();
     
@@ -24,7 +24,7 @@ TEST_F(DXLinkStreamerTestFixture, CanConstructStreamer)
     });
 }
 
-TEST_F(DXLinkStreamerTestFixture, CanStream)
+TEST_F(test_DX_LinkStreamer, CanStream)
 {
     std::unique_ptr<TastyWorksClient> twClient = std::make_unique<TastyWorksClient>();
     std::unique_ptr<DX_LinkStreamer> dxlStreamer = std::make_unique<DX_LinkStreamer>(
