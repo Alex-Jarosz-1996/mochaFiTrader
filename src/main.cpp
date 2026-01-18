@@ -34,6 +34,7 @@ int main(int argc, char** argv)
         LOG_INFO("Triggering data stream.", "MAIN");
         dxlStreamer->set_on_quote([&](const MarketQuote& quote)
         {
+            LOG_INFO("Received Trade Signal.", "MAIN");
             Signal signal = strategy->generate_trading_signal(quote);
         });
         dxlStreamer->run();
