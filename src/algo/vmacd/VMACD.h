@@ -11,13 +11,6 @@
 class VMACD : public Algo
 {
     public:
-        enum class PriceInput
-        {
-            TradeOnly,   // update price MACD only when quote.price exists
-            MidOnly,     // update price MACD only when bid/ask exist (mid)
-            TradeThenMid // prefer trade price; fallback to mid when no trade price
-        };
-
         VMACD(int fast = 12, int slow = 26, int signal = 9);
 
         ~VMACD() override = default;
@@ -54,9 +47,6 @@ class VMACD : public Algo
         double macd_i = 0.0;
         double prev_macd_i = 0.0;
         double prev_sig_i = 0.0;
-
-        // config: how price is extracted
-        PriceInput price_input = PriceInput::TradeThenMid;
 
         // extractors
         std::optional<double> extract_trade_price(const MarketQuote& q) const;

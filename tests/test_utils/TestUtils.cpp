@@ -53,3 +53,14 @@ MarketQuote make_quote_with_imbalance(const std::string& sym,
 
     return make_quote(sym, bid, ask, bidSize, askSize);
 }
+
+MarketQuote make_mid_quote(const std::string& sym,
+                           double mid,
+                           double spread,
+                           double bidSize,
+                           double askSize)
+{
+    const double bid = mid - spread * 0.5;
+    const double ask = mid + spread * 0.5;
+    return make_quote(sym, bid, ask, bidSize, askSize);
+}

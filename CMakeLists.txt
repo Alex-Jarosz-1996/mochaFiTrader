@@ -18,6 +18,7 @@ set(SOURCES
     src/algo/algo/Algo.cpp
     src/algo/macd/MACD.cpp
     src/algo/vmacd/VMACD.cpp
+    src/algo/rsi/RSI.cpp
     src/algo/ticktype/TickType.cpp
 )
 
@@ -31,6 +32,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src/algo/algo
     ${CMAKE_SOURCE_DIR}/src/algo/macd
     ${CMAKE_SOURCE_DIR}/src/algo/vmacd
+    ${CMAKE_SOURCE_DIR}/src/algo/rsi
     ${CMAKE_SOURCE_DIR}/src/algo/ticktype
 )
 
@@ -78,6 +80,7 @@ add_executable(runUnitTests
     tests/unit/test_Strategy_Algo.cpp
     tests/unit/test_Strategy_MACD.cpp
     tests/unit/test_Strategy_VMACD.cpp
+    tests/unit/test_Strategy_RSI.cpp
     
     # source files
     src/config/Config.cpp
@@ -87,6 +90,7 @@ add_executable(runUnitTests
     src/algo/algo/Algo.cpp
     src/algo/macd/MACD.cpp
     src/algo/vmacd/VMACD.cpp
+    src/algo/rsi/RSI.cpp
     src/algo/ticktype/TickType.cpp
     
     # test source files
@@ -122,6 +126,7 @@ add_executable(runIntegrationTests
     src/algo/algo/Algo.cpp
     src/algo/macd/MACD.cpp
     src/algo/vmacd/VMACD.cpp
+    src/algo/rsi/RSI.cpp
     src/algo/ticktype/TickType.cpp
 
     # test source files
@@ -156,6 +161,7 @@ add_executable(runAllTests
     tests/unit/test_Strategy_Algo.cpp
     tests/unit/test_Strategy_MACD.cpp
     tests/unit/test_Strategy_VMACD.cpp
+    tests/unit/test_Strategy_RSI.cpp
 
     # integration tests
     tests/integration/test_LiveStreamIntegrationTest.cpp
@@ -168,6 +174,7 @@ add_executable(runAllTests
     src/algo/algo/Algo.cpp
     src/algo/macd/MACD.cpp
     src/algo/vmacd/VMACD.cpp
+    src/algo/rsi/RSI.cpp
     src/algo/ticktype/TickType.cpp
     
     # test source files
