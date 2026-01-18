@@ -21,3 +21,8 @@ MarketQuote make_quote(const std::string& sym,
                        double bidSize = 1.0,
                        double askSize = 1.0);
 
+MarketQuote make_quote_with_imbalance(const std::string& sym,
+                                      double midPrice,
+                                      double spread,
+                                      double totalSize,
+                                      double imbalance_norm);

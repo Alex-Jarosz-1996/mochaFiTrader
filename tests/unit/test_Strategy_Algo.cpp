@@ -110,6 +110,42 @@ TEST(test_Strategy_Algo, RejectsTradeNoAskValue)
     EXPECT_FALSE(h.is_genuine_transition(prev, curr));
 }
 
+TEST(test_Strategy_Algo, RejectsTradePrevBidValueLessThenZero)
+{
+    AlgoHarness h;
+    MarketQuote prev = make_quote("BTC", -1.0, 100.0, 1.0, 1.0); // negative bid value
+    MarketQuote curr = make_quote("BTC", 105.0, 100.0, 1.0, 1.0);
+
+    EXPECT_FALSE(h.is_genuine_transition(prev, curr));
+}
+
+TEST(test_Strategy_Algo, RejectsTradePrevAskValueLessThenZero)
+{
+    AlgoHarness h;
+    MarketQuote prev = make_quote("BTC", 100.0, -1.0, 1.0, 1.0); // negative ask value
+    MarketQuote curr = make_quote("BTC", 105.0, 100.0, 1.0, 1.0);
+
+    EXPECT_FALSE(h.is_genuine_transition(prev, curr));
+}
+
+TEST(test_Strategy_Algo, RejectsTradeCurrBidValueLessThenZero)
+{
+    AlgoHarness h;
+    MarketQuote prev = make_quote("BTC", 99.0, 100.0, 1.0, 1.0); // negative bid value
+    MarketQuote curr = make_quote("BTC", -1.0, 101.0, 1.0, 1.0);
+
+    EXPECT_FALSE(h.is_genuine_transition(prev, curr));
+}
+
+TEST(test_Strategy_Algo, RejectsTradeCurrAskValueLessThenZero)
+{
+    AlgoHarness h;
+    MarketQuote prev = make_quote("BTC", 99.0, 100.0, 1.0, 1.0); // negative ask value
+    MarketQuote curr = make_quote("BTC", 100.0, -1.0, 1.0, 1.0);
+
+    EXPECT_FALSE(h.is_genuine_transition(prev, curr));
+}
+
 TEST(test_Strategy_Algo, AcceptsTradeBidAskSpreadLessThanThreshold)
 {
     AlgoHarness h;

@@ -47,9 +47,14 @@ bool Algo::is_genuine_transition(const MarketQuote& prev,
     // map TickType::Quote -> TickType::Quote and validate
     if (prevT == Q && currT == Q)
     {
-        // ensuring we have bidPrice and askPrice
+        // ensuring we have bidPrice / askPrice, and bidSize / askSize
         if (!curr.bidPrice || !curr.askPrice) return false;
+        if (curr.bidPrice.value() < 0 || curr.askPrice.value() < 0) return false;
         
+        if (!curr.bidSize || !curr.askSize) return false;
+        if (curr.bidSize.value() < 0 || curr.askSize.value() < 0) return false;
+        
+        // considering bid / ask spread
         double bid_ask_spread = curr.askPrice.value() - curr.bidPrice.value();
         
         // checking that askPrice > bidPrice
@@ -57,10 +62,6 @@ bool Algo::is_genuine_transition(const MarketQuote& prev,
         
         // checking askPrice and bidPrice spread
         if (bid_ask_spread > curr.bidPrice.value() * 0.20) return false;
-
-        // checking that askSize > 0 and bidSize > 0
-        if (!curr.bidSize || !curr.askSize) return false;
-        if (curr.bidSize.value() <= 0 || curr.askSize.value() <= 0) return false;
 
     }
 
