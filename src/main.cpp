@@ -10,7 +10,7 @@
 #include "streamer/DX_LinkStreamer.h"
 #include "marketquote/MarketQuote.h"
 #include "log/Log.h"
-#include "algo/macd/MACD.h"
+#include "algo/vmacd/VMACD.h"
 #include "algo/Signal.h"
 
 int main(int argc, char** argv)
@@ -28,8 +28,8 @@ int main(int argc, char** argv)
             *twClient
         );
 
-        LOG_INFO("Initialising MACD object.", "MAIN");
-        std::unique_ptr<MACD> strategy = std::make_unique<MACD>();
+        LOG_INFO("Initialising VMACD object.", "MAIN");
+        std::unique_ptr<VMACD> strategy = std::make_unique<VMACD>();
 
         LOG_INFO("Triggering data stream.", "MAIN");
         dxlStreamer->set_on_quote([&](const MarketQuote& quote)
