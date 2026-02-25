@@ -20,6 +20,9 @@ set(SOURCES
     src/algo/vmacd/VMACD.cpp
     src/algo/rsi/RSI.cpp
     src/algo/ticktype/TickType.cpp
+    src/orchestrator/Orchestrator.cpp
+    src/order/OrderBuilder.cpp
+    src/utils/Utils.cpp
 )
 
 # project headers
@@ -34,6 +37,11 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src/algo/vmacd
     ${CMAKE_SOURCE_DIR}/src/algo/rsi
     ${CMAKE_SOURCE_DIR}/src/algo/ticktype
+    ${CMAKE_SOURCE_DIR}/src/marketquote/
+    ${CMAKE_SOURCE_DIR}/src/model/
+    ${CMAKE_SOURCE_DIR}/src/orchestrator/
+    ${CMAKE_SOURCE_DIR}/src/order/
+    ${CMAKE_SOURCE_DIR}/src/utils/
 )
 
 # -------------------------
@@ -81,17 +89,25 @@ add_executable(runUnitTests
     tests/unit/test_Strategy_MACD.cpp
     tests/unit/test_Strategy_VMACD.cpp
     tests/unit/test_Strategy_RSI.cpp
+    tests/unit/test_TradeableAsset.cpp
+    tests/unit/test_Orchestrator.cpp
+    tests/unit/test_OrderBuilder.cpp
+    tests/unit/test_OrderType.cpp
+    tests/unit/test_Utils.cpp
     
     # source files
-    src/config/Config.cpp
-    src/streamer/DX_LinkStreamer.cpp
-    src/log/Log.cpp
     src/tastyworks/TastyWorks.cpp
+    src/streamer/DX_LinkStreamer.cpp
+    src/config/Config.cpp
+    src/log/Log.cpp
     src/algo/algo/Algo.cpp
     src/algo/macd/MACD.cpp
     src/algo/vmacd/VMACD.cpp
     src/algo/rsi/RSI.cpp
     src/algo/ticktype/TickType.cpp
+    src/orchestrator/Orchestrator.cpp
+    src/order/OrderBuilder.cpp
+    src/utils/Utils.cpp
     
     # test source files
     tests/test_utils/TestUtils.cpp
@@ -119,15 +135,18 @@ add_executable(runIntegrationTests
     tests/integration/test_LiveStreamIntegrationTest.cpp
 
     # source files
-    src/config/Config.cpp
     src/tastyworks/TastyWorks.cpp
-    src/log/Log.cpp
     src/streamer/DX_LinkStreamer.cpp
+    src/config/Config.cpp
+    src/log/Log.cpp
     src/algo/algo/Algo.cpp
     src/algo/macd/MACD.cpp
     src/algo/vmacd/VMACD.cpp
     src/algo/rsi/RSI.cpp
     src/algo/ticktype/TickType.cpp
+    src/orchestrator/Orchestrator.cpp
+    src/order/OrderBuilder.cpp
+    src/utils/Utils.cpp
 
     # test source files
     tests/test_utils/TestUtils.cpp
@@ -162,20 +181,28 @@ add_executable(runAllTests
     tests/unit/test_Strategy_MACD.cpp
     tests/unit/test_Strategy_VMACD.cpp
     tests/unit/test_Strategy_RSI.cpp
+    tests/unit/test_TradeableAsset.cpp
+    tests/unit/test_Orchestrator.cpp
+    tests/unit/test_OrderBuilder.cpp
+    tests/unit/test_OrderType.cpp
+    tests/unit/test_Utils.cpp
 
     # integration tests
     tests/integration/test_LiveStreamIntegrationTest.cpp
 
     # source files
-    src/config/Config.cpp
     src/tastyworks/TastyWorks.cpp
-    src/log/Log.cpp
     src/streamer/DX_LinkStreamer.cpp
+    src/config/Config.cpp
+    src/log/Log.cpp
     src/algo/algo/Algo.cpp
     src/algo/macd/MACD.cpp
     src/algo/vmacd/VMACD.cpp
     src/algo/rsi/RSI.cpp
     src/algo/ticktype/TickType.cpp
+    src/orchestrator/Orchestrator.cpp
+    src/order/OrderBuilder.cpp
+    src/utils/Utils.cpp
     
     # test source files
     tests/test_utils/TestUtils.cpp

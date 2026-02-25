@@ -13,8 +13,8 @@
 #include <mutex>
 #include <atomic>
 
-#include "TastyWorks.h"
 #include "../marketquote/MarketQuote.h"
+#include "../tastyworks/TastyWorks.h"
 
 typedef websocketpp::client<websocketpp::config::asio_tls_client> client;
 
@@ -25,9 +25,8 @@ class DX_LinkStreamer {
         using QuoteCallback = std::function<void(const MarketQuote&)>;
 
     private:
-        // required for class
-        TastyWorksClient& twClient;
-
+        TastyWorksClient& client_;
+    
         QuoteCallback on_quote;
 
         std::string instrument_type;
@@ -74,9 +73,7 @@ class DX_LinkStreamer {
         std::optional<double> safe_parse_quote(const nlohmann::json& pckt, const std::string& key);
 
     public:
-        DX_LinkStreamer(
-            TastyWorksClient& twClient
-        );
+        DX_LinkStreamer(TastyWorksClient& client);
         ~DX_LinkStreamer();
 
         void set_on_quote(QuoteCallback qcb);

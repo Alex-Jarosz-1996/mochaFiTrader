@@ -12,6 +12,7 @@
 #include "log/Log.h"
 #include "algo/vmacd/VMACD.h"
 #include "algo/Signal.h"
+#include "orchestrator/Orchestrator.h"
 
 int main(int argc, char** argv)
 {
@@ -24,18 +25,23 @@ int main(int argc, char** argv)
         std::unique_ptr<TastyWorksClient> twClient = std::make_unique<TastyWorksClient>();
         
         LOG_INFO("Initialising DX_LinkStreamer object.", "MAIN");
-        std::unique_ptr<DX_LinkStreamer> dxlStreamer = std::make_unique<DX_LinkStreamer>(
-            *twClient
-        );
+        std::unique_ptr<DX_LinkStreamer> dxlStreamer = std::make_unique<DX_LinkStreamer>(*twClient);
 
-        LOG_INFO("Initialising VMACD object.", "MAIN");
+        LOG_INFO("Initialising strategy object.", "MAIN");
         std::unique_ptr<VMACD> strategy = std::make_unique<VMACD>();
+
+        LOG_INFO("Initialising Orchestrator object.", "MAIN");
+        Orchestrator orch(*twClient, *dxlStreamer);
 
         LOG_INFO("Triggering data stream.", "MAIN");
         dxlStreamer->set_on_quote([&](const MarketQuote& quote)
         {
             LOG_INFO("Received Trade Signal.", "MAIN");
             Signal signal = strategy->generate_trading_signal(quote);
+
+            LOG_INFO("Conducting trade on signal.", "MAIN");
+            orch.on_signal(signal);
+
         });
         dxlStreamer->run();
     } 

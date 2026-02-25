@@ -25,12 +25,6 @@ TEST(test_Config, TastyWorksPasswordConfigCheck)
     EXPECT_FALSE(val.empty());
 }
 
-TEST(test_Config, DbCredentialsConfigCheck)
-{
-    std::string val = Config::get_config_value("DB_CREDENTIALS");
-    EXPECT_FALSE(val.empty());
-}
-
 TEST(test_Config, TradeableAssetsConfigCheck)
 {
     std::string val = Config::get_config_value("TRADEABLE_ASSETS");
@@ -40,5 +34,11 @@ TEST(test_Config, TradeableAssetsConfigCheck)
 TEST(test_Config, InstrumentTypeConfigCheck)
 {
     std::string val = Config::get_config_value("INSTRUMENT_TYPE");
+    EXPECT_FALSE(val.empty());
+}
+
+TEST(test_Config, InstrumentConfigCheck)
+{
+    std::string val = Config::get_config_value("INSTRUMENT");
     EXPECT_FALSE(val.empty());
 }

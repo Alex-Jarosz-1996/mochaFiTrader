@@ -4,10 +4,10 @@
 #include "DX_LinkStreamer.h"
 #include "../marketquote/MarketQuote.h"
 #include "../config/Config.h"
+#include "../tastyworks/TastyWorks.h"
 
-DX_LinkStreamer::DX_LinkStreamer(
-    TastyWorksClient& twClient
-) : twClient(twClient)
+DX_LinkStreamer::DX_LinkStreamer(TastyWorksClient& client)
+    : client_(client)
 {
     // define appropriate feed parameters
     populate_class_attrs();
@@ -27,8 +27,9 @@ void DX_LinkStreamer::populate_class_attrs()
 {
     instrument_type = Config::get_config_value("INSTRUMENT_TYPE");
     tradeable_assets = Config::get_config_value("TRADEABLE_ASSETS");
-    ws_url = twClient._dx_link_url;
-    api_quote_token = twClient._api_quote_token;
+    
+    ws_url = client_.getDX_LinkUrl();
+    api_quote_token = client_.getAPI_QuoteToken();
 }
 
 void DX_LinkStreamer::construct_setup_msg()

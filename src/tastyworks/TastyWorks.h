@@ -5,6 +5,8 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
+#include "../../src/algo/Signal.h"
+
 class TastyWorksClient {
 private:
   std::string BASE_URL;
@@ -13,7 +15,15 @@ private:
   std::string ACCOUNT_NUMBER;
   bool REMEMBER_ME;
 
+  cpr::Header _h;
+  cpr::Header _h_auth;
+
+  const double ACCOUNT_MIN = 100;
+  const double TRADE_FACTOR = 0.5;
+
   void loadConfig();
+  void constructHeader();
+  void constructAuthHeader();
   void logout();
 
 public:
@@ -25,10 +35,24 @@ public:
   
   ~TastyWorksClient();
   
+  // order submission parameters
+  std::string getBaseUrl();
+  std::string getAccountNumber();
+  
+  // required for token and feed handling
   void getSessionToken();
-  void confirmSessionTokenGenerated();
   void confirmUserAccountActive();
-  void getAPI_QuoteToken();
+  void defineQuoteTokenStreamUrl();
+  std::string getAPI_QuoteToken();
+  std::string getDX_LinkUrl();
+
+  // account balance and status
+  double getAccountBalance();
+  double getTradeableAmount();
+  size_t getNumberAccountPositions();
+
+  // order submission
+  void submitOrder(const nlohmann::json& body);
 };
 
 #endif // TASTYWORKSCLIENT_H

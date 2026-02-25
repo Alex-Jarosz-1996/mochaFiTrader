@@ -41,3 +41,25 @@ $ cmake --build ./build/
 ```bash
 $ ./build/mochaFiTrader
 ```
+
+## Running Tests
+- Ensure project has been compiled.
+- Tests are to be executed from the following directory:
+```bash
+$ /mochaFiTrader
+```
+
+### Running all unit tests
+```bash
+$ ./build/runUnitTests
+```
+
+### Running integration tests
+```bash
+$ ./build/runIntegrationTests
+```
+
+### Running all tests combined
+```bash
+$ ./build/runAllTests
+```
