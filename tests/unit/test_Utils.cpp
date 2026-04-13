@@ -148,6 +148,13 @@ TEST(test_Utils, GetJsonResponseAttrValue_ReturnsTypedValues)
     EXPECT_EQ(Utils::getJsonResponseAttrValue<std::string>(j, "s"), "hello");
 }
 
+TEST(test_Utils, GetJsonResponseAttrValue_ThrowsOnNumericTypeMismatch)
+{
+    json j = { {"data", { {"price", "100.50"} }} }; // String instead of double
+    
+    EXPECT_THROW((void)Utils::getJsonResponseAttrValue<double>(j, "price"), std::exception);
+}
+
 TEST(test_Utils, GetJsonResponseAttrValue_ThrowsOnMissingAttr)
 {
     json j = { {"data", { {"x", 1} }} };
@@ -187,4 +194,41 @@ TEST(test_Utils, GetJsonResponseAttrArraySize_ThrowsIfNoDataKey)
 {
     json j = { {"x", 1} };
     EXPECT_THROW((void)Utils::getJsonResponseAttrArraySize(j, "items"), std::exception);
+}
+
+TEST(test_Utils, ParseJsonResponse_HandlesEmptyString)
+{
+    cpr::Response r;
+    r.text = "";
+    EXPECT_THROW(Utils::parseJsonResponse(r), std::exception);
+}
+
+TEST(test_Utils, CheckForAttrInsideJsonResponse_HandlesNullData)
+{
+    json j = { {"data", nullptr} };
+    // Should return false rather than crashing if data is null
+    EXPECT_FALSE(Utils::checkForAttrInsideJsonResponse(j, "any_key"));
+}
+
+TEST(test_Utils, GetJsonDataAttr_HandlesDeeplyNestedJson)
+{
+    json j = { {"data", { {"nested", { {"value", 100} }} }} };
+    
+    // If your implementation only looks one level deep, this tests the limits
+    // and documents that "nested" is the key we are looking for inside "data"
+    EXPECT_TRUE(Utils::getJsonDataAttr(j, "nested").contains("value"));
+}
+
+TEST(test_Utils, GetJsonResponseAttrValue_ThrowsWhenDataNodeIsNotObject)
+{
+    // Simulates an API error where 'data' is a string message
+    json j = { {"data", "Rate limit exceeded"} };
+    EXPECT_THROW((void)Utils::getJsonResponseAttrValue<int>(j, "any_key"), std::exception);
+}
+
+TEST(test_Utils, ParseJsonResponse_ThrowsOnNonObjectRoot)
+{
+    cpr::Response r;
+    r.text = "[1, 2, 3]"; // Valid JSON, but an array, not an object
+    EXPECT_THROW(Utils::parseJsonResponse(r), std::exception);
 }

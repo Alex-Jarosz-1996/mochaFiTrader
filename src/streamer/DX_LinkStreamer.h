@@ -74,10 +74,10 @@ class DX_LinkStreamer {
 
     public:
         DX_LinkStreamer(TastyWorksClient& client);
-        ~DX_LinkStreamer();
+        virtual ~DX_LinkStreamer();
 
-        void set_on_quote(QuoteCallback qcb);
-        void run();
+        virtual void set_on_quote(QuoteCallback qcb);
+        virtual void run();
 };
 
 #endif // DX_LINKSTREAMER_H

@@ -64,5 +64,7 @@ int main(int argc, char** argv)
         LOG_ERROR("Error: " + e_what, "MAIN");
     }
 
+    Log::shutdown();
+
     return 0;
 }

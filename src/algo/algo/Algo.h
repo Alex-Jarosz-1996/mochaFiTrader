@@ -39,7 +39,7 @@ class Algo {
         virtual ~Algo() {};
         
         // trading signal to determine BUY / SELL / HOLD actions
-        Signal generate_trading_signal(const MarketQuote& qt);
+        virtual Signal generate_trading_signal(const MarketQuote& qt);
 
         int get_valid_count() { return valid_count; }
         Signal get_signal() { return sig; }

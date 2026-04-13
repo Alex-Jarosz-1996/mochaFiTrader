@@ -15,6 +15,9 @@ public:
                      spdlog::level::level_enum log_level = spdlog::level::info,
                      const std::string& project_root = "");
 
+    // Flush logs and release spdlog resources for clean shutdown
+    static void shutdown();
+
     // Log a message (automatically adds file, line, and module tag)
     static void log(spdlog::level::level_enum level,
                     const std::string& message,

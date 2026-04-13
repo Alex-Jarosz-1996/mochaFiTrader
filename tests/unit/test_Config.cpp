@@ -42,3 +42,9 @@ TEST(test_Config, InstrumentConfigCheck)
     std::string val = Config::get_config_value("INSTRUMENT");
     EXPECT_FALSE(val.empty());
 }
+
+TEST(test_Config, ReturnsEmptyStringForMissingKey)
+{
+    std::string val = Config::get_config_value("NON_EXISTENT_KEY_999");
+    EXPECT_TRUE(val.empty());
+}

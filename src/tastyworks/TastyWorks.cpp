@@ -10,14 +10,17 @@
 #include "../log/Log.h"
 #include "../utils/Utils.h"
 
-TastyWorksClient::TastyWorksClient()
+TastyWorksClient::TastyWorksClient(bool auto_init)
 {
     loadConfig();
     constructHeader();
-    getSessionToken();
-    constructAuthHeader();
-    confirmUserAccountActive();
-    defineQuoteTokenStreamUrl();
+    if (auto_init)
+    {
+        getSessionToken();
+        constructAuthHeader();
+        confirmUserAccountActive();
+        defineQuoteTokenStreamUrl();
+    }
 }
 
 TastyWorksClient::~TastyWorksClient()
@@ -67,13 +70,11 @@ void TastyWorksClient::logout()
 
     if (Utils::isCorrectStatusCode(r, 204))
     {
-        std::cout << "Successfully logged out of user account." << std::endl;
+        LOG_INFO("Successfully logged out of user account.", "TASTYWORKS");
         return;
     }
     
-    std::cout << "Unable to log out of user account." << std::endl;
-    std::cerr << "Status Code: " << r.status_code << std::endl;
-    std::cerr << "Reasoning: " << r.text << std::endl;
+    LOG_ERROR("Unable to log out of user account. Status Code: " + std::to_string(r.status_code) + " Reasoning: " + r.text, "TASTYWORKS");
     return;
 }
 
@@ -94,20 +95,17 @@ void TastyWorksClient::getSessionToken()
     // checking for empty login credentials
     if (LOGIN.empty())
     {
-        std::cerr << "Missing LOGIN account credentials. Check config.json file." << std::endl;
-        return;
+        throw std::invalid_argument("Missing LOGIN account credentials. Check config.json file.");
     }
 
     if (PASSWORD.empty())
     {
-        std::cerr << "Missing PASSWORD account credentials. Check config.json file." << std::endl;
-        return;
+        throw std::invalid_argument("Missing PASSWORD account credentials. Check config.json file.");
     }
     
     if (ACCOUNT_NUMBER.empty())
     {
-        std::cerr << "Missing ACCOUNT_NUMBER account credentials. Check config.json file." << std::endl;
-        return;
+        throw std::invalid_argument("Missing ACCOUNT_NUMBER account credentials. Check config.json file.");
     }
     
     std::string session_url = BASE_URL + "/sessions";
@@ -127,14 +125,14 @@ void TastyWorksClient::getSessionToken()
 
     if (Utils::isCorrectStatusCode(r, 201))
     {
-        LOG_INFO("Successfully logged into user account.", "TASTYWORKS");
+        LOG_INFO("Authentication successful. Retrieving session token.", "TASTYWORKS");
 
         nlohmann::json json_response = Utils::parseJsonResponse(r);
         
         _session_token = Utils::getJsonResponseAttrValue<std::string>(json_response, "session-token");
 
         LOG_INFO("Checking if session token was generated.", "TASTYWORKS");
-        if (_session_token == "")
+        if (_session_token.empty())
         {
             throw std::invalid_argument("ERROR TastyWorksClient::getSessionToken(). No session token generated. Check login details.");
         }
@@ -143,8 +141,7 @@ void TastyWorksClient::getSessionToken()
         return;
     }
 
-    std::cerr << "Status Code: " << r.status_code << std::endl;
-    std::cerr << "Reasoning: " << r.text << std::endl;
+    LOG_ERROR("Issue generating session token. Status Code: " + std::to_string(r.status_code) + " Reasoning: " + r.text, "TASTYWORKS");
     throw std::invalid_argument("ERROR TastyWorksClient::getSessionToken(). Issue generating session token." + r.text);
 }
 

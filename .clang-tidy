@@ -1,0 +1,11 @@
+---
+Checks: >
+  bugprone-*,
+  clang-analyzer-*,
+  cppcoreguidelines-*,
+  modernize-*,
+  performance-*,
+  readability-*,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -readability-braces-around-statements
+WarningsAsErrors: '*'

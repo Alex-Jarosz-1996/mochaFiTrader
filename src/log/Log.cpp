@@ -21,6 +21,8 @@ void Log::init(const std::string& log_dir,
                spdlog::level::level_enum log_level,
                const std::string& project_root)
 {
+    if (s_logger) return;
+
     namespace fs = std::filesystem;
     fs::create_directories(fs::path(log_dir));
 
@@ -49,6 +51,14 @@ void Log::init(const std::string& log_dir,
 
     spdlog::set_default_logger(s_logger);
     s_logger->info("Logger initialized (file: {})", s_base_filename);
+}
+
+void Log::shutdown()
+{
+    std::lock_guard<std::mutex> lock(s_mutex);
+    s_logger = nullptr;
+    spdlog::drop_all();
+    spdlog::shutdown();
 }
 
 std::string Log::generate_log_filename(const std::string& log_dir)
@@ -97,10 +107,9 @@ void Log::rotate_if_needed()
         s_file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(new_file, true);
         s_file_sink->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] [%s:%#] %v");
 
-        auto sinks = s_logger->sinks();
-        if (!sinks.empty()) {
-            sinks[0] = s_file_sink;  // index 0 = file sink
-            s_logger->sinks() = sinks;
+        auto& current_sinks = s_logger->sinks();
+        if (!current_sinks.empty()) {
+            current_sinks[0] = s_file_sink;  // index 0 = file sink
         }
 
         s_logger->info("Log file rotated -> {}", new_file);
