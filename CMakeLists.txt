@@ -14,20 +14,20 @@ set(CMAKE_BUILD_TYPE Debug)
 #     message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
 # endif()
 
-# # -------------------------
-# # Code Formatting (clang-format)
-# # -------------------------
-# find_program(CLANG_FORMAT_EXE NAMES "clang-format")
-# if(CLANG_FORMAT_EXE)
-#     file(GLOB_RECURSE ALL_CXX_SOURCE_FILES
-#         src/*.cpp src/*.h
-#         tests/*.cpp tests/*.h
-#     )
-#     add_custom_target(format
-#         COMMAND ${CLANG_FORMAT_EXE} -i ${ALL_CXX_SOURCE_FILES}
-#         COMMENT "Formatting all source files with clang-format"
-#     )
-# endif()
+# -------------------------
+# Code Formatting (clang-format)
+# -------------------------
+find_program(CLANG_FORMAT_EXE NAMES "clang-format")
+if(CLANG_FORMAT_EXE)
+    file(GLOB_RECURSE ALL_CXX_SOURCE_FILES
+        src/*.cpp src/*.h
+        tests/*.cpp tests/*.h
+    )
+    add_custom_target(format
+        COMMAND ${CLANG_FORMAT_EXE} -i ${ALL_CXX_SOURCE_FILES}
+        COMMENT "Formatting all source files with clang-format"
+    )
+endif()
 
 # # -------------------------
 # # Memory Analysis (Valgrind / Memcheck)
