@@ -13,7 +13,7 @@ private:
   std::string LOGIN;
   std::string PASSWORD;
   std::string ACCOUNT_NUMBER;
-  bool REMEMBER_ME;
+  bool REMEMBER_ME = false;
 
   cpr::Header _h;
   cpr::Header _h_auth;
@@ -21,10 +21,15 @@ private:
   const double ACCOUNT_MIN = 100;
   const double TRADE_FACTOR = 0.5;
 
-  virtual void loadConfig();
-  virtual void constructHeader();
-  virtual void constructAuthHeader();
-  virtual void logout();
+  static constexpr int HTTP_TIMEOUT_MS = 5000;
+  static constexpr int HTTP_OK = 200;
+  static constexpr int HTTP_CREATED = 201;
+  static constexpr int HTTP_NO_CONTENT = 204;
+
+  void loadConfig();
+  void constructHeader();
+  void constructAuthHeader();
+  void logout();
 
 public:
   std::string _session_token;

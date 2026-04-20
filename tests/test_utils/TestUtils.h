@@ -9,26 +9,33 @@ class AlgoHarness : public Algo {
         void process_quote() override { sig = Signal::HOLD; }
 };
 
-MarketQuote make_unknown(const std::string& sym);
+struct QuoteParams {
+    double bid;
+    double ask;
+    double bidSize = 1.0;
+    double askSize = 1.0;
+};
 
+struct ImbalanceQuoteParams {
+    double midPrice;
+    double spread;
+    double totalSize;
+    double imbalanceNorm;
+};
 
-MarketQuote make_trade(const std::string& sym, double price);
+struct MidQuoteParams {
+    double mid;
+    double spread  = 2.0;
+    double bidSize = 1.0;
+    double askSize = 1.0;
+};
 
+auto make_unknown(const std::string& sym) -> MarketQuote;
 
-MarketQuote make_quote(const std::string& sym,
-                       double bid,
-                       double ask,
-                       double bidSize = 1.0,
-                       double askSize = 1.0);
+auto make_trade(const std::string& sym, double price) -> MarketQuote;
 
-MarketQuote make_quote_with_imbalance(const std::string& sym,
-                                      double midPrice,
-                                      double spread,
-                                      double totalSize,
-                                      double imbalance_norm);
+auto make_quote(const std::string& sym, QuoteParams params) -> MarketQuote;
 
-MarketQuote make_mid_quote(const std::string& sym,
-                           double mid,
-                           double spread = 2.0,
-                           double bidSize = 1.0,
-                           double askSize = 1.0);
+auto make_quote_with_imbalance(const std::string& sym, ImbalanceQuoteParams params) -> MarketQuote;
+
+auto make_mid_quote(const std::string& sym, MidQuoteParams params) -> MarketQuote;

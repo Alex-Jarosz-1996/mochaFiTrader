@@ -9,3 +9,6 @@ config.json
 
 # logging output
 src/log/*.txt
+
+# ai tooling
+*local.md

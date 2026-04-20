@@ -25,7 +25,7 @@ class Algo {
         Signal sig = Signal::HOLD;
 
         // MarketQuote raw packet tracking
-        virtual void ingest_quote(const MarketQuote& qt);
+        virtual void ingest_quote(const MarketQuote& mkt_quote);
         
         // processing quote
         virtual bool is_genuine_transition(const MarketQuote& prev,
@@ -39,7 +39,7 @@ class Algo {
         virtual ~Algo() {};
         
         // trading signal to determine BUY / SELL / HOLD actions
-        virtual Signal generate_trading_signal(const MarketQuote& qt);
+        virtual Signal generate_trading_signal(const MarketQuote& mkt_quote);
 
         int get_valid_count() { return valid_count; }
         Signal get_signal() { return sig; }

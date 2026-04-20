@@ -29,8 +29,11 @@ TEST(test_LiveStreamIntegrationTest, StreamInsertAndRetrieveQuote)
     );
 
     // strategy
+    static constexpr int MACD_FAST   = 3;
+    static constexpr int MACD_SLOW   = 6;
+    static constexpr int MACD_SIGNAL = 3;
     std::unique_ptr<MACD> strategy = std::make_unique<MACD>(
-        /*fast=*/3, /*slow=*/6, /*signal=*/3
+        MACD::Params{.fast = MACD_FAST, .slow = MACD_SLOW, .signal = MACD_SIGNAL}
     );
 
     bool called = false;
@@ -47,8 +50,19 @@ TEST(test_LiveStreamIntegrationTest, StreamCallsStrategyAndProducesSignals)
 {
     MockStreamer dxlStreamer;
 
+    static constexpr int    MACD_FAST2      = 3;
+    static constexpr int    MACD_SLOW2      = 6;
+    static constexpr int    MACD_SIGNAL2    = 3;
+    static constexpr int    WARMUP_ITERS    = 10;
+    static constexpr int    DOWNTREND_ITERS = 30;
+    static constexpr int    UPTREND_ITERS   = 40;
+    static constexpr double SEED_PRICE      = 100.0;
+    static constexpr double DOWN_BASE       = 100.0;
+    static constexpr double UP_BASE         = 70.0;
+    static constexpr double UP_STEP         = 2.0;
+
     std::unique_ptr<MACD> strategy = std::make_unique<MACD>(
-        /*fast=*/3, /*slow=*/6, /*signal=*/3
+        MACD::Params{.fast = MACD_FAST2, .slow = MACD_SLOW2, .signal = MACD_SIGNAL2}
     );
 
     int callbackCount = 0;
@@ -56,15 +70,16 @@ TEST(test_LiveStreamIntegrationTest, StreamCallsStrategyAndProducesSignals)
 
     dxlStreamer.set_on_quote([&](const MarketQuote& quote) {
         ++callbackCount;
-        Signal s = strategy->generate_trading_signal(quote);
-        sawBuy  |= (s == Signal::BUY);
+        Signal sig = strategy->generate_trading_signal(quote);
+        sawBuy |= (sig == Signal::BUY);
     });
 
     std::vector<MarketQuote> quotes;
+    quotes.reserve(WARMUP_ITERS + DOWNTREND_ITERS + UPTREND_ITERS);
 
-    for (int i = 0; i < 10; ++i) quotes.push_back(make_trade("BTC", 100.0));
-    for (int i = 0; i < 30; ++i) quotes.push_back(make_trade("BTC", 100.0 - i));
-    for (int i = 0; i < 40; ++i) quotes.push_back(make_trade("BTC", 70.0 + 2.0*i));
+    for (int i = 0; i < WARMUP_ITERS; ++i)    quotes.push_back(make_trade("BTC", SEED_PRICE));
+    for (int i = 0; i < DOWNTREND_ITERS; ++i) quotes.push_back(make_trade("BTC", DOWN_BASE - i));
+    for (int i = 0; i < UPTREND_ITERS; ++i)   quotes.push_back(make_trade("BTC", UP_BASE + UP_STEP * i));
 
     dxlStreamer.emit(quotes);
 
@@ -108,11 +123,14 @@ TEST(test_LiveStreamIntegrationTest, LiveStreamProbe)
             dxlStreamer->run(); // blocks
         });
 
+        static constexpr int POLL_INTERVAL_MS = 50;
+        static constexpr int TIMEOUT_SECS     = 12;
+
         auto start = std::chrono::steady_clock::now();
         while (true)
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
-            if ((std::chrono::steady_clock::now() - start) > std::chrono::seconds(12))
+            std::this_thread::sleep_for(std::chrono::milliseconds(POLL_INTERVAL_MS));
+            if ((std::chrono::steady_clock::now() - start) > std::chrono::seconds(TIMEOUT_SECS))
             {
                 std::cerr << "Timeout waiting for quotes. Got "
                           << quote_count.load() << "\n";

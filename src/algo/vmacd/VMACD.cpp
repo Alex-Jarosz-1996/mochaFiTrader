@@ -1,59 +1,61 @@
 #include <cmath>
 #include "VMACD.h"
 
-VMACD::VMACD(int fast, int slow, int signal)
-{
-    k_fast = 2.0 / (fast + 1.0);
-    k_slow = 2.0 / (slow + 1.0);
-    k_signal = 2.0 / (signal + 1.0);
+static constexpr double EMA_MULTIPLIER = 2.0;
+static constexpr double MID_PRICE_FACTOR = 0.5;
 
-    trigger_window = 3 * slow;
+VMACD::VMACD(VMACDParams params)
+    : k_fast(EMA_MULTIPLIER / (params.fast + 1.0)),
+      k_slow(EMA_MULTIPLIER / (params.slow + 1.0)),
+      k_signal(EMA_MULTIPLIER / (params.signal + 1.0)),
+      trigger_window(3 * params.slow)
+{
 }
 
-std::optional<double> VMACD::extract_trade_price(const MarketQuote& q) const
+auto VMACD::extract_trade_price(const MarketQuote& mkt_quote) -> std::optional<double>
 {
-    if (q.price && std::isfinite(q.price.value()))
+    if (mkt_quote.price && std::isfinite(mkt_quote.price.value()))
     {
-        return q.price.value();
+        return mkt_quote.price.value();
     }
     return std::nullopt;
 }
 
-std::optional<double> VMACD::extract_mid_price(const MarketQuote& q) const
+auto VMACD::extract_mid_price(const MarketQuote& mkt_quote) -> std::optional<double>
 {
-    if (q.bidPrice && q.askPrice)
+    if (mkt_quote.bidPrice && mkt_quote.askPrice)
     {
-        const double b = q.bidPrice.value();
-        const double a = q.askPrice.value();
-        if (std::isfinite(b) && std::isfinite(a) && a >= b)
+        const double bid = mkt_quote.bidPrice.value();
+        const double ask = mkt_quote.askPrice.value();
+        if (std::isfinite(bid) && std::isfinite(ask) && ask >= bid)
         {
-            return (a + b) * 0.5;
+            return (ask + bid) * MID_PRICE_FACTOR;
         }
     }
     return std::nullopt;
 }
 
-std::optional<double> VMACD::extract_price_for_macd(const MarketQuote& q) const
+auto VMACD::extract_price_for_macd(const MarketQuote& mkt_quote) -> std::optional<double>
 {
-    if (q.price && std::isfinite(q.price.value()))
+    if (mkt_quote.price && std::isfinite(mkt_quote.price.value()))
     {
-        return extract_trade_price(q);
+        return extract_trade_price(mkt_quote);
     }
 
-    if (q.bidPrice && q.askPrice)
+    if (mkt_quote.bidPrice && mkt_quote.askPrice)
     {
-        return extract_mid_price(q);
+        return extract_mid_price(mkt_quote);
     }
 
     return std::nullopt;
 }
 
-std::optional<double> VMACD::extract_normalized_imbalance(const MarketQuote& q) const
+auto VMACD::extract_normalized_imbalance(const MarketQuote& mkt_quote) -> std::optional<double>
 {
-    if (!q.bidSize || !q.askSize) return std::nullopt;
+    if (!mkt_quote.bidSize || !mkt_quote.askSize) return std::nullopt;
 
-    const double bid = q.bidSize.value();
-    const double ask = q.askSize.value();
+    const double bid = mkt_quote.bidSize.value();
+    const double ask = mkt_quote.askSize.value();
 
     if (!std::isfinite(bid) || !std::isfinite(ask)) return std::nullopt;
     if (bid < 0.0 || ask < 0.0) return std::nullopt;
@@ -114,24 +116,24 @@ void VMACD::update_imbalance_macd(double imb)
     ema_sig_i = k_signal * macd_i + (1.0 - k_signal) * ema_sig_i;
 }
 
-bool VMACD::price_bull_cross() const
+auto VMACD::price_bull_cross() const -> bool
 {
     // Cross bullish: was below, now above
     return (prev_macd_p < prev_sig_p) && (macd_p > ema_sig_p);
 }
 
-bool VMACD::price_bear_cross() const
+auto VMACD::price_bear_cross() const -> bool
 {
     // Cross bearish: was above, now below
     return (prev_macd_p > prev_sig_p) && (macd_p< ema_sig_p);
 }
 
-bool VMACD::imb_bullish() const
+auto VMACD::imb_bullish() const -> bool
 {
     return macd_i > ema_sig_i && std::abs(macd_i) > imb_strength;
 }
 
-bool VMACD::imb_bearish() const
+auto VMACD::imb_bearish() const -> bool
 {
     return macd_i < ema_sig_i && std::abs(macd_i) > imb_strength;
 }
@@ -144,18 +146,18 @@ void VMACD::process_quote()
         return;
     }
 
-    const MarketQuote& q = *curr_raw;
+    const MarketQuote& mkt_quote = *curr_raw;
 
     // update the imbalance MACD only when sizes exist
-    if (std::optional<double> imb = extract_normalized_imbalance(q))
+    if (std::optional<double> imb = extract_normalized_imbalance(mkt_quote))
     {
         update_imbalance_macd(*imb);
     }
 
-    // update the price MACD when we can extract a price
-    if (std::optional<double> px = extract_price_for_macd(q))
+    // update the price MACD when we can extract ask price
+    if (std::optional<double> price = extract_price_for_macd(mkt_quote))
     {
-        update_price_macd(*px);
+        update_price_macd(*price);
     }
 
     // need both series initialised before we act

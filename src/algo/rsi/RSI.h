@@ -8,12 +8,18 @@
 #include <optional>
 #include <vector>
 
+struct RSIParams {
+    int period = 14;
+    double oversold = 30.0;
+    double overbought = 70.0;
+};
+
 class RSI : public Algo
 {
     public:
-        RSI(int period = 14,
-            double oversold = 30.0,
-            double overbought = 70.0);
+        using Params = RSIParams;
+
+        explicit RSI(Params params = {});
 
         ~RSI() override = default;
 
@@ -26,9 +32,9 @@ class RSI : public Algo
         double overbought;
 
         // price extraction
-        std::optional<double> extract_trade_price(const MarketQuote& q) const;
-        std::optional<double> extract_mid_price(const MarketQuote& q) const;
-        std::optional<double> extract_price_for_rsi(const MarketQuote& q) const;
+        static std::optional<double> extract_trade_price(const MarketQuote& mkt_quote);
+        static std::optional<double> extract_mid_price(const MarketQuote& mkt_quote);
+        static std::optional<double> extract_price_for_rsi(const MarketQuote& mkt_quote);
 
         // rsi state
         bool seeded = false;

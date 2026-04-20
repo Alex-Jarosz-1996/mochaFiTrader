@@ -19,25 +19,25 @@ public:
 
     enum class Mode { Submit, DryRun };
 
-    OrderBuilder& timeInForce(std::string v);
-    OrderBuilder& orderType(std::string v);
-    OrderBuilder& amount(double v);
-    OrderBuilder& transactionType(std::string v);
-    OrderBuilder& addLeg(
+    auto timeInForce(std::string value) -> OrderBuilder&;
+    auto orderType(std::string value) -> OrderBuilder&;
+    auto amount(double value) -> OrderBuilder&;
+    auto transactionType(std::string value) -> OrderBuilder&;
+    auto addLeg(
         std::string instrument,
         std::string symbol,
         std::string action
-    );
-    OrderBuilder& dryRun(Mode m);
-    
-    nlohmann::json buildAllOrderComponentsJson() const;
-    nlohmann::json buildJsonToSubmitOrder(
+    ) -> OrderBuilder&;
+    auto dryRun(Mode mode) -> OrderBuilder&;
+
+    auto buildAllOrderComponentsJson() const -> nlohmann::json;
+    auto buildJsonToSubmitOrder(
         double value,
         const std::string& instrument,
         const std::string& symbol,
         const std::string& action,
         Mode dryRun
-    );
+    ) -> nlohmann::json;
 
 private:
     // OrderBuilder state

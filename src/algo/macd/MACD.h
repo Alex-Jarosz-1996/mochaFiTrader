@@ -8,6 +8,12 @@
 #include <optional>
 #include <vector>
 
+struct MACDParams {
+    int fast = 12;
+    int slow = 26;
+    int signal = 9;
+};
+
 class MACD : public Algo {
     private:
         // ema smoothing
@@ -30,13 +36,15 @@ class MACD : public Algo {
         double prev_signal = 0.0;
 
         // handling Quote and Trade packets
-        std::optional<double> extract_price_for_macd(const MarketQuote& q) const;
+        static std::optional<double> extract_price_for_macd(const MarketQuote& mkt_quote);
     
     protected:
         void process_quote() override;
     
     public:
-        MACD(int fast = 12, int slow = 26, int signal = 9);
+        using Params = MACDParams;
+
+        explicit MACD(Params params = {});
         ~MACD() override = default;
 };
 

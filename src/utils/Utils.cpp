@@ -3,30 +3,30 @@
 namespace Utils
 {
 
-bool isCorrectStatusCode(cpr::Response& r, int sc)
+auto isCorrectStatusCode(cpr::Response& resp, int status_code) -> bool
 {
-    return r.status_code == sc;
+    return resp.status_code == status_code;
 }
 
-nlohmann::json parseJsonResponse(cpr::Response& r)
+auto parseJsonResponse(cpr::Response& resp) -> nlohmann::json
 {
-    return nlohmann::json::parse(r.text);
+    return nlohmann::json::parse(resp.text);
 }
 
-bool doesJsonResponseContainDataAttr(nlohmann::json& jr)
+auto doesJsonResponseContainDataAttr(nlohmann::json& json_resp) -> bool
 {
-    return jr.contains("data");
+    return json_resp.contains("data");
 }
 
-bool checkForAttrInsideJsonResponse(nlohmann::json& jr, const std::string& msg)
+auto checkForAttrInsideJsonResponse(nlohmann::json& json_resp, const std::string& msg) -> bool
 {
-    return jr["data"].contains(msg);
+    return json_resp["data"].contains(msg);
 }
 
-size_t getJsonResponseAttrArraySize(nlohmann::json& jr, const std::string& a)
+auto getJsonResponseAttrArraySize(nlohmann::json& json_resp, const std::string& attr) -> size_t
 {
-    const auto& v = getJsonDataAttr(jr, a);
-    return v.is_array() ? v.size() : 0;
+    const auto& val = getJsonDataAttr(json_resp, attr);
+    return val.is_array() ? val.size() : 0;
 }
 
 }

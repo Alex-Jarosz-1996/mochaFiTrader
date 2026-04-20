@@ -1,40 +1,43 @@
 #include <cmath>
 #include "RSI.h"
 
-RSI::RSI(int period, double oversold, double overbought)
-    : period(period), oversold(oversold), overbought(overbought)
+static constexpr double MID_PRICE_FACTOR = 0.5;
+static constexpr double RSI_NEUTRAL = 50.0;
+
+RSI::RSI(RSIParams params)
+    : period(params.period), oversold(params.oversold), overbought(params.overbought)
 {
 }
 
-std::optional<double> RSI::extract_trade_price(const MarketQuote& q) const
+auto RSI::extract_trade_price(const MarketQuote& mkt_quote) -> std::optional<double>
 {
-    if (q.price && std::isfinite(q.price.value()))
-        return q.price.value();
+    if (mkt_quote.price && std::isfinite(mkt_quote.price.value()))
+        return mkt_quote.price.value();
     return std::nullopt;
 }
 
-std::optional<double> RSI::extract_mid_price(const MarketQuote& q) const
+auto RSI::extract_mid_price(const MarketQuote& mkt_quote) -> std::optional<double>
 {
-    if (q.bidPrice && q.askPrice)
+    if (mkt_quote.bidPrice && mkt_quote.askPrice)
     {
-        const double b = q.bidPrice.value();
-        const double a = q.askPrice.value();
-        if (std::isfinite(b) && std::isfinite(a) && a >= b)
-            return (a + b) * 0.5;
+        const double bid_price = mkt_quote.bidPrice.value();
+        const double ask_price = mkt_quote.askPrice.value();
+        if (std::isfinite(bid_price) && std::isfinite(ask_price) && ask_price >= bid_price)
+            return (ask_price + bid_price) * MID_PRICE_FACTOR;
     }
     return std::nullopt;
 }
 
-std::optional<double> RSI::extract_price_for_rsi(const MarketQuote& q) const
+auto RSI::extract_price_for_rsi(const MarketQuote& mkt_quote) -> std::optional<double>
 {
-    if (q.price && std::isfinite(q.price.value()))
+    if (mkt_quote.price && std::isfinite(mkt_quote.price.value()))
     {
-        return extract_trade_price(q);
+        return extract_trade_price(mkt_quote);
     }
 
-    if (q.bidPrice && q.askPrice)
+    if (mkt_quote.bidPrice && mkt_quote.askPrice)
     {
-        return extract_mid_price(q);
+        return extract_mid_price(mkt_quote);
     }
 
     return std::nullopt;
@@ -46,7 +49,7 @@ void RSI::update_rsi(double price)
     {
         prev_price = price;
         prev_rsi = rsi;
-        rsi = 50.0;
+        rsi = RSI_NEUTRAL;
         return;
     }
 
@@ -85,24 +88,24 @@ void RSI::update_rsi(double price)
         }
         else
         {
-            const double rs = avg_gain / avg_loss;
-            rsi = 100.0 - (100.0 / (1.0 + rs));
+            const double rs_ratio = avg_gain / avg_loss;
+            rsi = 100.0 - (100.0 / (1.0 + rs_ratio));
         }
     }
     else
     {
-        rsi = 50.0; // during seed
+        rsi = RSI_NEUTRAL; // during seed
     }
 
     prev_price = price;
 }
 
-bool RSI::crossed_up(double level) const
+auto RSI::crossed_up(double level) const -> bool
 {
     return (prev_rsi < level) && (rsi >= level);
 }
 
-bool RSI::crossed_down(double level) const
+auto RSI::crossed_down(double level) const -> bool
 {
     return (prev_rsi > level) && (rsi <= level);
 }
@@ -115,17 +118,17 @@ void RSI::process_quote()
         return;
     }
 
-    const MarketQuote& q = *curr_raw;
+    const MarketQuote& mkt_quote = *curr_raw;
 
     // only update RSI if we can extract a usable price
-    auto px = extract_price_for_rsi(q);
-    if (!px)
+    auto price = extract_price_for_rsi(mkt_quote);
+    if (!price)
     {
         sig = Signal::HOLD;
         return;
     }
 
-    update_rsi(*px);
+    update_rsi(*price);
 
     // Warmup gating:
     // - valid_count is Algo’s accepted packet count

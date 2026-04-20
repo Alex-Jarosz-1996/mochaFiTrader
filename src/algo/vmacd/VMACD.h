@@ -8,10 +8,18 @@
 #include <optional>
 #include <vector>
 
+struct VMACDParams {
+    int fast = 12;
+    int slow = 26;
+    int signal = 9;
+};
+
 class VMACD : public Algo
 {
     public:
-        VMACD(int fast = 12, int slow = 26, int signal = 9);
+        using Params = VMACDParams;
+
+        explicit VMACD(Params params = {});
 
         ~VMACD() override = default;
 
@@ -49,12 +57,12 @@ class VMACD : public Algo
         double prev_sig_i = 0.0;
 
         // extractors
-        std::optional<double> extract_trade_price(const MarketQuote& q) const;
-        std::optional<double> extract_mid_price(const MarketQuote& q) const;
-        std::optional<double> extract_price_for_macd(const MarketQuote& q) const;
+        static std::optional<double> extract_trade_price(const MarketQuote& mkt_quote);
+        static std::optional<double> extract_mid_price(const MarketQuote& mkt_quote);
+        static std::optional<double> extract_price_for_macd(const MarketQuote& mkt_quote);
 
         // normalised imbalance: (bidSize-askSize)/(bidSize+askSize)
-        std::optional<double> extract_normalized_imbalance(const MarketQuote& q) const;
+        static std::optional<double> extract_normalized_imbalance(const MarketQuote& mkt_quote);
 
         // macd update helpers
         void update_price_macd(double price);

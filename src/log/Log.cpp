@@ -6,16 +6,16 @@
 #include <chrono>
 #include <iostream>
 
-std::shared_ptr<spdlog::logger> Log::s_logger = nullptr;
-std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> Log::s_console_sink = nullptr;
-std::shared_ptr<spdlog::sinks::basic_file_sink_mt> Log::s_file_sink = nullptr;
-std::mutex Log::s_mutex;
-std::string Log::s_project_root;
-std::string Log::s_log_dir;
-std::string Log::s_base_filename;
-std::string Log::s_base_filename_root;
-size_t Log::s_file_index = 0;
-constexpr size_t Log::MAX_FILE_SIZE;
+std::shared_ptr<spdlog::logger> Log::s_logger = nullptr;                         // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> Log::s_console_sink = nullptr; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+std::shared_ptr<spdlog::sinks::basic_file_sink_mt> Log::s_file_sink = nullptr;      // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+std::mutex Log::s_mutex;                                                              // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+std::string Log::s_project_root;                                                      // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+std::string Log::s_log_dir;                                                           // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+std::string Log::s_base_filename;                                                     // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+std::string Log::s_base_filename_root;                                                // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+size_t Log::s_file_index = 0;                                                         // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+
 
 void Log::init(const std::string& log_dir,
                spdlog::level::level_enum log_level,
@@ -61,20 +61,20 @@ void Log::shutdown()
     spdlog::shutdown();
 }
 
-std::string Log::generate_log_filename(const std::string& log_dir)
+auto Log::generate_log_filename(const std::string& log_dir) -> std::string
 {
     namespace fs = std::filesystem;
     fs::create_directories(log_dir);
 
     // current time
     auto now = std::chrono::system_clock::now();
-    std::time_t t = std::chrono::system_clock::to_time_t(now);
+    std::time_t unix_time = std::chrono::system_clock::to_time_t(now);
 
     std::tm local_tm{};
 #ifdef _WIN32
-    localtime_s(&local_tm, &t);
+    localtime_s(&local_tm, &unix_time);
 #else
-    localtime_r(&t, &local_tm);
+    localtime_r(&unix_time, &local_tm);
 #endif
 
     std::ostringstream oss;
@@ -136,12 +136,12 @@ void Log::log(spdlog::level::level_enum level,
 
     // dynamically toggle console sink
     auto& sinks = s_logger->sinks();
-    auto it = std::find(sinks.begin(), sinks.end(), s_console_sink);
-    if (to_console && it == sinks.end()) {
+    auto sink_it = std::find(sinks.begin(), sinks.end(), s_console_sink);
+    if (to_console && sink_it == sinks.end()) {
         sinks.push_back(s_console_sink);
         s_logger->sinks() = sinks;
-    } else if (!to_console && it != sinks.end()) {
-        sinks.erase(it);
+    } else if (!to_console && sink_it != sinks.end()) {
+        sinks.erase(sink_it);
         s_logger->sinks() = sinks;
     }
 
@@ -155,12 +155,11 @@ void Log::log(spdlog::level::level_enum level,
     s_logger->log(level, formatted.str());
 }
 
-std::string Log::trim_project_path(const std::string& full_path)
+auto Log::trim_project_path(const std::string& full_path) -> std::string
 {
     if (s_project_root.empty()) return full_path;
     auto pos = full_path.find(s_project_root);
     if (pos != std::string::npos)
         return full_path.substr(pos + s_project_root.size());
-    else
-        return full_path;
+    return full_path;
 }

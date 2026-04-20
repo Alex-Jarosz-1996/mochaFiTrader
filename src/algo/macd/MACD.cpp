@@ -6,31 +6,33 @@
 #include <optional>
 #include <vector>
 
-MACD::MACD(int fast, int slow, int signal)
+static constexpr double EMA_MULTIPLIER = 2.0;
+static constexpr double MID_PRICE_FACTOR = 0.5;
+
+MACD::MACD(MACDParams params)
+    : k_fast(EMA_MULTIPLIER / (params.fast + 1)),
+      k_slow(EMA_MULTIPLIER / (params.slow + 1)),
+      k_signal(EMA_MULTIPLIER / (params.signal + 1)),
+      trigger_window(3 * params.slow)
 {
-    k_fast = 2.0 / (fast + 1);
-    k_slow = 2.0 / (slow + 1);
-    k_signal = 2.0 / (signal + 1);
-    
-    trigger_window = 3 * slow;
 }
 
-std::optional<double> MACD::extract_price_for_macd(const MarketQuote& q) const
+auto MACD::extract_price_for_macd(const MarketQuote& mkt_quote) -> std::optional<double>
 {
-    const TickType t = get_tick_type(q);
+    const TickType t_type = get_tick_type(mkt_quote);
 
-    if (t == TickType::Quote)
+    if (t_type == TickType::Quote)
     {
-        if (q.bidPrice && q.askPrice)
+        if (mkt_quote.bidPrice && mkt_quote.askPrice)
         {
-            return (q.bidPrice.value() + q.askPrice.value()) * 0.5; // mid
+            return (mkt_quote.bidPrice.value() + mkt_quote.askPrice.value()) * MID_PRICE_FACTOR; // mid
         }
         return std::nullopt;
     }
 
-    if (t == TickType::Trade)
+    if (t_type == TickType::Trade)
     {
-        if (q.price) return q.price.value();
+        if (mkt_quote.price) return mkt_quote.price.value();
         return std::nullopt;
     }
 

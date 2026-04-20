@@ -2,24 +2,24 @@
 
 #include "../../../src/marketquote/MarketQuote.h"
 
-TickType get_tick_type(const MarketQuote& quote)
+auto get_tick_type(const MarketQuote& mkt_quote) -> TickType
 {
     // considering TickType::Trade; price
-    if (quote.price.has_value())
+    if (mkt_quote.price.has_value())
     {
         return TickType::Trade;
     }
-    
+
     // considering TickType::Quote; bid_price, ask_price, bid_size, ask_size
     if (
-        quote.bidPrice.has_value() 
-        && quote.askPrice.has_value() 
-        && quote.bidSize.has_value() 
-        && quote.askSize.has_value()
+        mkt_quote.bidPrice.has_value()
+        && mkt_quote.askPrice.has_value()
+        && mkt_quote.bidSize.has_value()
+        && mkt_quote.askSize.has_value()
     )
     {
         return TickType::Quote;
     }
-    
+
     return TickType::Unknown;
 }

@@ -5,8 +5,8 @@
 TEST(test_TradeableAsset, CanConstructTradeableAsset)
 {
     EXPECT_NO_THROW({
-        TradeableAsset a = TradeableAsset::constructTradeableAsset();
-        EXPECT_FALSE(a.symbol.empty());
-        EXPECT_FALSE(a.instrument.empty());
+        TradeableAsset asset = TradeableAsset::constructTradeableAsset();
+        EXPECT_FALSE(asset.symbol.empty());
+        EXPECT_FALSE(asset.instrument.empty());
     });
 }

@@ -35,6 +35,8 @@ class DX_LinkStreamer {
         const int TIMEOUT = 5; // seconds
         const int SETUP_CHANNEL = 0;
         const int FEED_CHANNEL = 3;
+        static constexpr double FEED_AGGREGATION_PERIOD = 0.1;
+        static constexpr int KEEP_ALIVE_INTERVAL_MS = 1000;
 
         nlohmann::json setup_msg;
         nlohmann::json authorize_msg;
@@ -64,13 +66,13 @@ class DX_LinkStreamer {
         void configure_channels();
         void send_initial_msgs();
         void send_periodic_msgs();
-        MarketQuote parse_quote(const nlohmann::json& entry);
+        static MarketQuote parse_quote(const nlohmann::json& entry);
         void on_open(connection_hdl hdl);
-        void on_msg(client::message_ptr msg);
-        std::shared_ptr<boost::asio::ssl::context> create_tls_context();
+        void on_msg(const client::message_ptr& msg);
+        static std::shared_ptr<boost::asio::ssl::context> create_tls_context();
         void setup_handlers();
         client::connection_ptr create_connection();
-        std::optional<double> safe_parse_quote(const nlohmann::json& pckt, const std::string& key);
+        static std::optional<double> safe_parse_quote(const nlohmann::json& pckt, const std::string& key);
 
     public:
         DX_LinkStreamer(TastyWorksClient& client);

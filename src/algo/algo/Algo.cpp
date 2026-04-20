@@ -5,73 +5,66 @@
 #include <optional>
 #include <vector>
 
-void Algo::ingest_quote(const MarketQuote& qt)
+static constexpr double PRICE_JUMP_THRESHOLD = 0.15;
+static constexpr double MAX_BID_ASK_SPREAD_RATIO = 0.20;
+
+static auto is_valid_trade_transition(const MarketQuote& prev, const MarketQuote& curr) -> bool
 {
-    if (curr_raw) prev_raw = curr_raw;
-    curr_raw = qt;
+    if (!prev.price || !curr.price) return false;
+
+    const double p_prev = prev.price.value();
+    const double p_curr = curr.price.value();
+
+    if (p_prev == 0.0 || p_curr == 0.0) return false;
+
+    const double pct_change = std::abs(p_curr - p_prev) / std::abs(p_prev);
+    return pct_change <= PRICE_JUMP_THRESHOLD;
 }
 
-bool Algo::is_genuine_transition(const MarketQuote& prev,
-                                 const MarketQuote& curr)
+static auto is_valid_quote_transition(const MarketQuote& curr) -> bool
 {
-    
-    const TickType Q = TickType::Quote;
-    const TickType T = TickType::Trade;
-    const TickType U = TickType::Unknown;
-    
+    if (!curr.bidPrice || !curr.askPrice) return false;
+    if (curr.bidPrice.value() < 0 || curr.askPrice.value() < 0) return false;
+
+    if (!curr.bidSize || !curr.askSize) return false;
+    if (curr.bidSize.value() < 0 || curr.askSize.value() < 0) return false;
+
+    const double bid_ask_spread = curr.askPrice.value() - curr.bidPrice.value();
+    if (bid_ask_spread <= 0) return false;
+
+    return bid_ask_spread <= curr.bidPrice.value() * MAX_BID_ASK_SPREAD_RATIO;
+}
+
+void Algo::ingest_quote(const MarketQuote& mkt_quote)
+{
+    if (curr_raw) prev_raw = curr_raw;
+    curr_raw = mkt_quote;
+}
+
+auto Algo::is_genuine_transition(const MarketQuote& prev,
+                                 const MarketQuote& curr) -> bool
+{
     const TickType prevT = get_tick_type(prev);
     const TickType currT = get_tick_type(curr);
 
-    // reject TickType::Unknown
-    if (currT == U) return false;
+    if (currT == TickType::Unknown) return false;
 
-    // reject bid > ask
     if (curr.bidPrice && curr.askPrice &&
         curr.bidPrice.value() > curr.askPrice.value()) return false;
 
-    // map TickType::Trade -> TickType::Trade and validate
-    // based on change in price values <= 10%
-    if (prevT == T && currT == T)
-    {
-        double p_prev = prev.price.value();
-        double p_curr = curr.price.value();
+    if (prevT == TickType::Trade && currT == TickType::Trade)
+        return is_valid_trade_transition(prev, curr);
 
-        if (p_prev == 0.0 || p_curr == 0.0) return false;
-
-        double pct_change = std::abs(p_curr - p_prev) / std::abs(p_prev);
-        
-        // reject: 15% price jump
-        if (pct_change > 0.15) return false;
-    }
-    
-    // map TickType::Quote -> TickType::Quote and validate
-    if (prevT == Q && currT == Q)
-    {
-        // ensuring we have bidPrice / askPrice, and bidSize / askSize
-        if (!curr.bidPrice || !curr.askPrice) return false;
-        if (curr.bidPrice.value() < 0 || curr.askPrice.value() < 0) return false;
-        
-        if (!curr.bidSize || !curr.askSize) return false;
-        if (curr.bidSize.value() < 0 || curr.askSize.value() < 0) return false;
-        
-        // considering bid / ask spread
-        double bid_ask_spread = curr.askPrice.value() - curr.bidPrice.value();
-        
-        // checking that askPrice > bidPrice
-        if (bid_ask_spread <= 0) return false;
-        
-        // checking askPrice and bidPrice spread
-        if (bid_ask_spread > curr.bidPrice.value() * 0.20) return false;
-
-    }
+    if (prevT == TickType::Quote && currT == TickType::Quote)
+        return is_valid_quote_transition(curr);
 
     return true;
 }
 
 
-Signal Algo::generate_trading_signal(const MarketQuote& qt)
+auto Algo::generate_trading_signal(const MarketQuote& mkt_quote) -> Signal
 {
-    ingest_quote(qt);
+    ingest_quote(mkt_quote);
     
     // need at least one raw packet to start
     if (!curr_raw)
@@ -98,7 +91,7 @@ Signal Algo::generate_trading_signal(const MarketQuote& qt)
     // accepted new packet, update counter
     ++valid_count;
 
-    // processing quote
+    // processing mkt_quote
     process_quote();
 
     // now that we've updated state based on curr_raw, promote to prev_valid

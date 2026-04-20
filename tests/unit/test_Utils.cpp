@@ -7,21 +7,24 @@
 
 using nlohmann::json;
 
+static constexpr long HTTP_OK        = 200;
+static constexpr long HTTP_NOT_FOUND = 404;
+
 //
 // isCorrectStatusCode
 //
 TEST(test_Utils, IsCorrectStatusCode_ReturnsTrueWhenMatch)
 {
-    cpr::Response r;
-    r.status_code = 200;
-    EXPECT_TRUE(Utils::isCorrectStatusCode(r, 200));
+    cpr::Response resp;
+    resp.status_code = HTTP_OK;
+    EXPECT_TRUE(Utils::isCorrectStatusCode(resp, HTTP_OK));
 }
 
 TEST(test_Utils, IsCorrectStatusCode_ReturnsFalseWhenMismatch)
 {
-    cpr::Response r;
-    r.status_code = 404;
-    EXPECT_FALSE(Utils::isCorrectStatusCode(r, 200));
+    cpr::Response resp;
+    resp.status_code = HTTP_NOT_FOUND;
+    EXPECT_FALSE(Utils::isCorrectStatusCode(resp, HTTP_OK));
 }
 
 //
@@ -29,21 +32,23 @@ TEST(test_Utils, IsCorrectStatusCode_ReturnsFalseWhenMismatch)
 //
 TEST(test_Utils, ParseJsonResponse_ParsesValidJson)
 {
-    cpr::Response r;
-    r.text = R"({"data":{"value":42}})";
+    static constexpr int EXPECTED_VALUE = 42;
 
-    json j = Utils::parseJsonResponse(r);
+    cpr::Response resp;
+    resp.text = R"({"data":{"value":42}})";
 
-    ASSERT_TRUE(j.contains("data"));
-    EXPECT_EQ(j["data"]["value"], 42);
+    json parsed = Utils::parseJsonResponse(resp);
+
+    ASSERT_TRUE(parsed.contains("data"));
+    EXPECT_EQ(parsed["data"]["value"], EXPECTED_VALUE);
 }
 
 TEST(test_Utils, ParseJsonResponse_ThrowsOnInvalidJson)
 {
-    cpr::Response r;
-    r.text = "{ invalid json }";
+    cpr::Response resp;
+    resp.text = "{ invalid json }";
 
-    EXPECT_THROW(Utils::parseJsonResponse(r), std::exception);
+    EXPECT_THROW(Utils::parseJsonResponse(resp), std::exception);
 }
 
 //
@@ -51,14 +56,14 @@ TEST(test_Utils, ParseJsonResponse_ThrowsOnInvalidJson)
 //
 TEST(test_Utils, DoesJsonResponseContainDataAttr_ReturnsTrue)
 {
-    json j = { {"data", { {"x", 1} }} };
-    EXPECT_TRUE(Utils::doesJsonResponseContainDataAttr(j));
+    json jobj = { {"data", { {"x", 1} }} };
+    EXPECT_TRUE(Utils::doesJsonResponseContainDataAttr(jobj));
 }
 
 TEST(test_Utils, DoesJsonResponseContainDataAttr_ReturnsFalse)
 {
-    json j = { {"nope", 1} };
-    EXPECT_FALSE(Utils::doesJsonResponseContainDataAttr(j));
+    json jobj = { {"nope", 1} };
+    EXPECT_FALSE(Utils::doesJsonResponseContainDataAttr(jobj));
 }
 
 //
@@ -66,33 +71,25 @@ TEST(test_Utils, DoesJsonResponseContainDataAttr_ReturnsFalse)
 //
 TEST(test_Utils, CheckForAttrInsideJsonResponse_ReturnsTrueWhenPresent)
 {
-    json j = { {"data", { {"positions", 5} }} };
-    EXPECT_TRUE(Utils::checkForAttrInsideJsonResponse(j, "positions"));
+    static constexpr int POSITION_COUNT = 5;
+    json jobj = { {"data", { {"positions", POSITION_COUNT} }} };
+    EXPECT_TRUE(Utils::checkForAttrInsideJsonResponse(jobj, "positions"));
 }
 
 TEST(test_Utils, CheckForAttrInsideJsonResponse_ReturnsFalseWhenMissing)
 {
-    json j = { {"data", { {"positions", 5} }} };
-    EXPECT_FALSE(Utils::checkForAttrInsideJsonResponse(j, "orders"));
+    static constexpr int POSITION_COUNT = 5;
+    json jobj = { {"data", { {"positions", POSITION_COUNT} }} };
+    EXPECT_FALSE(Utils::checkForAttrInsideJsonResponse(jobj, "orders"));
 }
 
 TEST(test_Utils, CheckForAttrInsideJsonResponse_WhenNoDataKey_CurrentImplementationMayThrowOrMutate)
 {
-    // NOTE:
-    // Your implementation uses jr["data"].contains(msg)
-    // operator[] can insert "data" if it doesn't exist.
-    //
-    // This test documents the current behavior and protects you from surprises.
-    json j = { {"x", 1} };
+    json jobj = { {"x", 1} };
 
-    // Depending on json library behavior, this may:
-    //  - create "data": null, then contains() false
-    //  - or throw if contains() called on non-object
-    //
-    // We'll accept either "false" or "throw" as current behavior.
     try {
-        bool r = Utils::checkForAttrInsideJsonResponse(j, "anything");
-        EXPECT_FALSE(r);
+        bool result = Utils::checkForAttrInsideJsonResponse(jobj, "anything");
+        EXPECT_FALSE(result);
     } catch (...) {
         SUCCEED();
     }
@@ -103,29 +100,31 @@ TEST(test_Utils, CheckForAttrInsideJsonResponse_WhenNoDataKey_CurrentImplementat
 //
 TEST(test_Utils, GetJsonDataAttr_ReturnsReferenceToCorrectNode)
 {
-    json j = { {"data", { {"alpha", 123}, {"beta", "xyz"} }} };
+    static constexpr int ALPHA_VAL    = 123;
+    static constexpr int ALPHA_MUTATE = 999;
 
-    const json& v1 = Utils::getJsonDataAttr(j, "alpha");
-    const json& v2 = Utils::getJsonDataAttr(j, "beta");
+    json jobj = { {"data", { {"alpha", ALPHA_VAL}, {"beta", "xyz"} }} };
 
-    EXPECT_EQ(v1.get<int>(), 123);
-    EXPECT_EQ(v2.get<std::string>(), "xyz");
+    const json& val1 = Utils::getJsonDataAttr(jobj, "alpha");
+    const json& val2 = Utils::getJsonDataAttr(jobj, "beta");
 
-    // Also show it's a reference: if we modify underlying json, reference reflects it.
-    j["data"]["alpha"] = 999;
-    EXPECT_EQ(v1.get<int>(), 999);
+    EXPECT_EQ(val1.get<int>(), ALPHA_VAL);
+    EXPECT_EQ(val2.get<std::string>(), "xyz");
+
+    jobj["data"]["alpha"] = ALPHA_MUTATE;
+    EXPECT_EQ(val1.get<int>(), ALPHA_MUTATE);
 }
 
 TEST(test_Utils, GetJsonDataAttr_ThrowsIfNoDataKey)
 {
-    json j = { {"x", 1} };
-    EXPECT_THROW(Utils::getJsonDataAttr(j, "alpha"), std::exception);
+    json jobj = { {"x", 1} };
+    EXPECT_THROW(Utils::getJsonDataAttr(jobj, "alpha"), std::exception);
 }
 
 TEST(test_Utils, GetJsonDataAttr_ThrowsIfAttrMissing)
 {
-    json j = { {"data", { {"x", 1} }} };
-    EXPECT_THROW(Utils::getJsonDataAttr(j, "missing"), std::exception);
+    json jobj = { {"data", { {"x", 1} }} };
+    EXPECT_THROW(Utils::getJsonDataAttr(jobj, "missing"), std::exception);
 }
 
 //
@@ -133,40 +132,40 @@ TEST(test_Utils, GetJsonDataAttr_ThrowsIfAttrMissing)
 //
 TEST(test_Utils, GetJsonResponseAttrValue_ReturnsTypedValues)
 {
-    json j = {
+    static constexpr int    INT_VAL    = 42;
+    static constexpr double DOUBLE_VAL = 12.5;
+
+    json jobj = {
         {"data", {
             {"b", true},
-            {"i", 42},
-            {"d", 12.5},
+            {"i", INT_VAL},
+            {"d", DOUBLE_VAL},
             {"s", "hello"}
         }}
     };
 
-    EXPECT_EQ(Utils::getJsonResponseAttrValue<bool>(j, "b"), true);
-    EXPECT_EQ(Utils::getJsonResponseAttrValue<int>(j, "i"), 42);
-    EXPECT_DOUBLE_EQ(Utils::getJsonResponseAttrValue<double>(j, "d"), 12.5);
-    EXPECT_EQ(Utils::getJsonResponseAttrValue<std::string>(j, "s"), "hello");
+    EXPECT_EQ(Utils::getJsonResponseAttrValue<bool>(jobj, "b"), true);
+    EXPECT_EQ(Utils::getJsonResponseAttrValue<int>(jobj, "i"), INT_VAL);
+    EXPECT_DOUBLE_EQ(Utils::getJsonResponseAttrValue<double>(jobj, "d"), DOUBLE_VAL);
+    EXPECT_EQ(Utils::getJsonResponseAttrValue<std::string>(jobj, "s"), "hello");
 }
 
 TEST(test_Utils, GetJsonResponseAttrValue_ThrowsOnNumericTypeMismatch)
 {
-    json j = { {"data", { {"price", "100.50"} }} }; // String instead of double
-    
-    EXPECT_THROW((void)Utils::getJsonResponseAttrValue<double>(j, "price"), std::exception);
+    json jobj = { {"data", { {"price", "100.50"} }} };
+    EXPECT_THROW((void)Utils::getJsonResponseAttrValue<double>(jobj, "price"), std::exception);
 }
 
 TEST(test_Utils, GetJsonResponseAttrValue_ThrowsOnMissingAttr)
 {
-    json j = { {"data", { {"x", 1} }} };
-    EXPECT_THROW((void)Utils::getJsonResponseAttrValue<int>(j, "missing"), std::exception);
+    json jobj = { {"data", { {"x", 1} }} };
+    EXPECT_THROW((void)Utils::getJsonResponseAttrValue<int>(jobj, "missing"), std::exception);
 }
 
 TEST(test_Utils, GetJsonResponseAttrValue_ThrowsOnTypeMismatch)
 {
-    json j = { {"data", { {"x", "not_an_int"} }} };
-
-    // nlohmann::json throws type_error on invalid conversions
-    EXPECT_THROW((void)Utils::getJsonResponseAttrValue<int>(j, "x"), std::exception);
+    json jobj = { {"data", { {"x", "not_an_int"} }} };
+    EXPECT_THROW((void)Utils::getJsonResponseAttrValue<int>(jobj, "x"), std::exception);
 }
 
 //
@@ -174,61 +173,59 @@ TEST(test_Utils, GetJsonResponseAttrValue_ThrowsOnTypeMismatch)
 //
 TEST(test_Utils, GetJsonResponseAttrArraySize_ReturnsCorrectSize)
 {
-    json j = { {"data", { {"items", json::array({1,2,3,4})} }} };
-    EXPECT_EQ(Utils::getJsonResponseAttrArraySize(j, "items"), 4u);
+    static constexpr size_t ARRAY_SIZE = 4;
+    json jobj = { {"data", { {"items", json::array({1, 2, 3, 4})} }} };
+    EXPECT_EQ(Utils::getJsonResponseAttrArraySize(jobj, "items"), ARRAY_SIZE);
 }
 
 TEST(test_Utils, GetJsonResponseAttrArraySize_ReturnsZeroIfNotArray)
 {
-    json j = { {"data", { {"items", 123} }} };
-    EXPECT_EQ(Utils::getJsonResponseAttrArraySize(j, "items"), 0u);
+    static constexpr int NOT_ARRAY_VAL = 123;
+    json jobj = { {"data", { {"items", NOT_ARRAY_VAL} }} };
+    EXPECT_EQ(Utils::getJsonResponseAttrArraySize(jobj, "items"), 0U);
 }
 
 TEST(test_Utils, GetJsonResponseAttrArraySize_ThrowsIfMissingAttr)
 {
-    json j = { {"data", { {"x", 1} }} };
-    EXPECT_THROW((void)Utils::getJsonResponseAttrArraySize(j, "items"), std::exception);
+    json jobj = { {"data", { {"x", 1} }} };
+    EXPECT_THROW((void)Utils::getJsonResponseAttrArraySize(jobj, "items"), std::exception);
 }
 
 TEST(test_Utils, GetJsonResponseAttrArraySize_ThrowsIfNoDataKey)
 {
-    json j = { {"x", 1} };
-    EXPECT_THROW((void)Utils::getJsonResponseAttrArraySize(j, "items"), std::exception);
+    json jobj = { {"x", 1} };
+    EXPECT_THROW((void)Utils::getJsonResponseAttrArraySize(jobj, "items"), std::exception);
 }
 
 TEST(test_Utils, ParseJsonResponse_HandlesEmptyString)
 {
-    cpr::Response r;
-    r.text = "";
-    EXPECT_THROW(Utils::parseJsonResponse(r), std::exception);
+    cpr::Response resp;
+    resp.text = "";
+    EXPECT_THROW(Utils::parseJsonResponse(resp), std::exception);
 }
 
 TEST(test_Utils, CheckForAttrInsideJsonResponse_HandlesNullData)
 {
-    json j = { {"data", nullptr} };
-    // Should return false rather than crashing if data is null
-    EXPECT_FALSE(Utils::checkForAttrInsideJsonResponse(j, "any_key"));
+    json jobj = { {"data", nullptr} };
+    EXPECT_FALSE(Utils::checkForAttrInsideJsonResponse(jobj, "any_key"));
 }
 
 TEST(test_Utils, GetJsonDataAttr_HandlesDeeplyNestedJson)
 {
-    json j = { {"data", { {"nested", { {"value", 100} }} }} };
-    
-    // If your implementation only looks one level deep, this tests the limits
-    // and documents that "nested" is the key we are looking for inside "data"
-    EXPECT_TRUE(Utils::getJsonDataAttr(j, "nested").contains("value"));
+    static constexpr int NESTED_VAL = 100;
+    json jobj = { {"data", { {"nested", { {"value", NESTED_VAL} }} }} };
+    EXPECT_TRUE(Utils::getJsonDataAttr(jobj, "nested").contains("value"));
 }
 
 TEST(test_Utils, GetJsonResponseAttrValue_ThrowsWhenDataNodeIsNotObject)
 {
-    // Simulates an API error where 'data' is a string message
-    json j = { {"data", "Rate limit exceeded"} };
-    EXPECT_THROW((void)Utils::getJsonResponseAttrValue<int>(j, "any_key"), std::exception);
+    json jobj = { {"data", "Rate limit exceeded"} };
+    EXPECT_THROW((void)Utils::getJsonResponseAttrValue<int>(jobj, "any_key"), std::exception);
 }
 
 TEST(test_Utils, ParseJsonResponse_ThrowsOnNonObjectRoot)
 {
-    cpr::Response r;
-    r.text = "[1, 2, 3]"; // Valid JSON, but an array, not an object
-    EXPECT_THROW(Utils::parseJsonResponse(r), std::exception);
+    cpr::Response resp;
+    resp.text = "[1, 2, 3]";
+    EXPECT_THROW(Utils::parseJsonResponse(resp), std::exception);
 }

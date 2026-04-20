@@ -10,7 +10,7 @@ enum class TickType
     Unknown
 };
 
-TickType get_tick_type(const MarketQuote& quote);
+TickType get_tick_type(const MarketQuote& mkt_quote);
 
 
 #endif // TICKTYPE_H

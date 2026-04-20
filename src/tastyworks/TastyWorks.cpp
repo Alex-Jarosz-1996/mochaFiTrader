@@ -16,10 +16,10 @@ TastyWorksClient::TastyWorksClient(bool auto_init)
     constructHeader();
     if (auto_init)
     {
-        getSessionToken();
+        getSessionToken();          // NOLINT(clang-analyzer-optin.cplusplus.VirtualCall)
         constructAuthHeader();
-        confirmUserAccountActive();
-        defineQuoteTokenStreamUrl();
+        confirmUserAccountActive(); // NOLINT(clang-analyzer-optin.cplusplus.VirtualCall)
+        defineQuoteTokenStreamUrl(); // NOLINT(clang-analyzer-optin.cplusplus.VirtualCall)
     }
 }
 
@@ -62,28 +62,27 @@ void TastyWorksClient::logout()
     
     std::string session_url = BASE_URL + "/sessions";
     
-    cpr::Response r = cpr::Delete(
+    cpr::Response response = cpr::Delete(
         cpr::Url{session_url},
         _h_auth,
-        cpr::Timeout{5000}
+        cpr::Timeout{HTTP_TIMEOUT_MS}
     );
 
-    if (Utils::isCorrectStatusCode(r, 204))
+    if (Utils::isCorrectStatusCode(response, HTTP_NO_CONTENT))
     {
         LOG_INFO("Successfully logged out of user account.", "TASTYWORKS");
         return;
     }
     
-    LOG_ERROR("Unable to log out of user account. Status Code: " + std::to_string(r.status_code) + " Reasoning: " + r.text, "TASTYWORKS");
-    return;
+    LOG_ERROR("Unable to log out of user account. Status Code: " + std::to_string(response.status_code) + " Reasoning: " + response.text, "TASTYWORKS");
 }
 
-std::string TastyWorksClient::getBaseUrl()
+auto TastyWorksClient::getBaseUrl() -> std::string
 {
     return BASE_URL;
 }
 
-std::string TastyWorksClient::getAccountNumber()
+auto TastyWorksClient::getAccountNumber() -> std::string
 {
     return ACCOUNT_NUMBER;
 }
@@ -116,18 +115,18 @@ void TastyWorksClient::getSessionToken()
         {"remember-me", REMEMBER_ME}
     };
 
-    cpr::Response r = cpr::Post(
+    cpr::Response response = cpr::Post(
         cpr::Url{session_url},
         _h,
         cpr::Body{json_body.dump()},
-        cpr::Timeout{5000}
+        cpr::Timeout{HTTP_TIMEOUT_MS}
     );
 
-    if (Utils::isCorrectStatusCode(r, 201))
+    if (Utils::isCorrectStatusCode(response, HTTP_CREATED))
     {
         LOG_INFO("Authentication successful. Retrieving session token.", "TASTYWORKS");
 
-        nlohmann::json json_response = Utils::parseJsonResponse(r);
+        nlohmann::json json_response = Utils::parseJsonResponse(response);
         
         _session_token = Utils::getJsonResponseAttrValue<std::string>(json_response, "session-token");
 
@@ -141,8 +140,8 @@ void TastyWorksClient::getSessionToken()
         return;
     }
 
-    LOG_ERROR("Issue generating session token. Status Code: " + std::to_string(r.status_code) + " Reasoning: " + r.text, "TASTYWORKS");
-    throw std::invalid_argument("ERROR TastyWorksClient::getSessionToken(). Issue generating session token." + r.text);
+    LOG_ERROR("Issue generating session token. Status Code: " + std::to_string(response.status_code) + " Reasoning: " + response.text, "TASTYWORKS");
+    throw std::invalid_argument("ERROR TastyWorksClient::getSessionToken(). Issue generating session token." + response.text);
 }
 
 void TastyWorksClient::confirmUserAccountActive()
@@ -151,15 +150,15 @@ void TastyWorksClient::confirmUserAccountActive()
     
     std::string account_active_url = BASE_URL + "/customers/me/accounts/" + ACCOUNT_NUMBER;
     
-    cpr::Response r = cpr::Get(
+    cpr::Response response = cpr::Get(
         cpr::Url{account_active_url},
         _h_auth,
-        cpr::Timeout{5000}
+        cpr::Timeout{HTTP_TIMEOUT_MS}
     );
 
-    if (Utils::isCorrectStatusCode(r, 200))
+    if (Utils::isCorrectStatusCode(response, HTTP_OK))
     {
-        nlohmann::json json_response = Utils::parseJsonResponse(r);
+        nlohmann::json json_response = Utils::parseJsonResponse(response);
 
         if (Utils::doesJsonResponseContainDataAttr(json_response))
         {
@@ -192,15 +191,15 @@ void TastyWorksClient::defineQuoteTokenStreamUrl()
 
     std::string api_quote_token_url = BASE_URL + "/api-quote-tokens";
 
-    cpr::Response r = cpr::Get(
+    cpr::Response response = cpr::Get(
         cpr::Url{api_quote_token_url},
         _h_auth,
-        cpr::Timeout{5000}
+        cpr::Timeout{HTTP_TIMEOUT_MS}
     );
 
-    if (Utils::isCorrectStatusCode(r, 200))
+    if (Utils::isCorrectStatusCode(response, HTTP_OK))
     {
-        nlohmann::json json_response = Utils::parseJsonResponse(r);
+        nlohmann::json json_response = Utils::parseJsonResponse(response);
         
         if (Utils::doesJsonResponseContainDataAttr(json_response))
         {
@@ -221,36 +220,36 @@ void TastyWorksClient::defineQuoteTokenStreamUrl()
     throw std::invalid_argument("ERROR TastyWorksClient::defineQuoteTokenStreamUrl(). Did not receive 200 response when retrieving feed token and Url.");
 }
 
-std::string TastyWorksClient::getAPI_QuoteToken()
+auto TastyWorksClient::getAPI_QuoteToken() -> std::string
 {
     return _api_quote_token;
 }
 
-std::string TastyWorksClient::getDX_LinkUrl()
+auto TastyWorksClient::getDX_LinkUrl() -> std::string
 {
     return _dx_link_url;
 }
 
-double TastyWorksClient::getAccountBalance()
+auto TastyWorksClient::getAccountBalance() -> double
 {
     LOG_INFO("Determining current account balance.", "TASTYWORKS");
     std::string account_active_url = BASE_URL + "/accounts/" + ACCOUNT_NUMBER + "/balances";
     
-    cpr::Response r = cpr::Get(
+    cpr::Response response = cpr::Get(
         cpr::Url{account_active_url},
         _h_auth,
-        cpr::Timeout{5000}
+        cpr::Timeout{HTTP_TIMEOUT_MS}
     );
 
-    if (Utils::isCorrectStatusCode(r, 200))
+    if (Utils::isCorrectStatusCode(response, HTTP_OK))
     {
-        nlohmann::json json_response = Utils::parseJsonResponse(r);
+        nlohmann::json json_response = Utils::parseJsonResponse(response);
 
         if (Utils::doesJsonResponseContainDataAttr(json_response))
         {
             if (Utils::checkForAttrInsideJsonResponse(json_response, "net-liquidating-value"))
             {
-                std::string nlv = Utils::getJsonResponseAttrValue<std::string>(json_response, "net-liquidating-value");
+                auto nlv = Utils::getJsonResponseAttrValue<std::string>(json_response, "net-liquidating-value");
                 double nlv_d = std::stod(nlv);
 
                 // if (nlv_d < ACCOUNT_MIN)
@@ -270,26 +269,26 @@ double TastyWorksClient::getAccountBalance()
     throw std::invalid_argument("ERROR TastyWorksClient::confirmAccountBalanceAdequate(). Did not receive 200 response when checking min account balance.");
 }
 
-double TastyWorksClient::getTradeableAmount()
+auto TastyWorksClient::getTradeableAmount() -> double
 {
     LOG_INFO("Determining tradeable amount.", "TASTYWORKS");
     return TRADE_FACTOR * getAccountBalance();
 }
 
-size_t TastyWorksClient::getNumberAccountPositions()
+auto TastyWorksClient::getNumberAccountPositions() -> size_t
 {
     LOG_INFO("Returning all open account positions.", "TASTYWORKS");
     std::string positions_url = BASE_URL + "/accounts/" + ACCOUNT_NUMBER + "/positions";
 
-    cpr::Response r = cpr::Get(
+    cpr::Response response = cpr::Get(
         cpr::Url{positions_url},
         _h_auth,
-        cpr::Timeout{5000}
+        cpr::Timeout{HTTP_TIMEOUT_MS}
     );
 
-    if (Utils::isCorrectStatusCode(r, 200))
+    if (Utils::isCorrectStatusCode(response, HTTP_OK))
     {
-        nlohmann::json json_response = Utils::parseJsonResponse(r);
+        nlohmann::json json_response = Utils::parseJsonResponse(response);
 
         if (Utils::doesJsonResponseContainDataAttr(json_response))
         {
@@ -313,17 +312,17 @@ void TastyWorksClient::submitOrder(const nlohmann::json& body)
     LOG_INFO("Submitting order.", "TASTYWORKS");
     std::string submit_order_url = BASE_URL + "/accounts/" + ACCOUNT_NUMBER + "/orders";
     
-    cpr::Response r = cpr::Post(
+    cpr::Response response = cpr::Post(
         cpr::Url{submit_order_url},
         _h_auth,
         cpr::Body{body.dump()},
-        cpr::Timeout{5000}
+        cpr::Timeout{HTTP_TIMEOUT_MS}
     );
 
-    if (Utils::isCorrectStatusCode(r, 200) || Utils::isCorrectStatusCode(r, 201))
+    if (Utils::isCorrectStatusCode(response, HTTP_OK) || Utils::isCorrectStatusCode(response, HTTP_CREATED))
     {
         return;
     }
 
-    throw std::invalid_argument("HTTP error submitting order: " + r.error.message);
+    throw std::invalid_argument("HTTP error submitting order: " + response.error.message);
 }

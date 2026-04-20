@@ -5,14 +5,14 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_BUILD_TYPE Debug)
 
-# # -------------------------
-# # Static Analysis (clang-tidy)
-# # -------------------------
-# find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
-# if(CLANG_TIDY_EXE)
-#     set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
-#     message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
-# endif()
+# -------------------------
+# Static Analysis (clang-tidy)
+# -------------------------
+find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
+if(CLANG_TIDY_EXE)
+    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
+    message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
+endif()
 
 # -------------------------
 # Code Formatting (clang-format)

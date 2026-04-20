@@ -42,22 +42,22 @@ protected:
 
 TEST_F(test_Orchestrator, BuildOrderBody_ReturnsNulloptOnHold)
 {
-    OrchestratorFixture fx;
-    fx.build_or_skip();
+    OrchestratorFixture fixture;
+    fixture.build_or_skip();
 
-    auto body = fx.orchestrator->build_order_body(Signal::HOLD);
+    auto body = fixture.orchestrator->build_order_body(Signal::HOLD);
     EXPECT_FALSE(body.has_value());
 }
 
-TEST_F(test_Orchestrator, BuildOrderBody_Buy_ReturnsJsonWithOneLegAndBuyAction)
+TEST_F(test_Orchestrator, BuildOrderBody_Buy_ReturnsJsonWithOneLegAndBuyAction) // NOLINT(readability-function-cognitive-complexity)
 {
-    OrchestratorFixture fx;
-    fx.build_or_skip();
+    OrchestratorFixture fixture;
+    fixture.build_or_skip();
 
     std::optional<nlohmann::json> body;
     try
     {
-        body = fx.orchestrator->build_order_body(Signal::BUY);
+        body = fixture.orchestrator->build_order_body(Signal::BUY);
     } catch (const std::exception& e) {
         GTEST_SKIP() << "Skipping because build_order_body(BUY) threw (likely missing API session/config): "
                      << e.what();
@@ -73,7 +73,7 @@ TEST_F(test_Orchestrator, BuildOrderBody_Buy_ReturnsJsonWithOneLegAndBuyAction)
     EXPECT_TRUE(body->contains("legs"));
 
     ASSERT_TRUE((*body)["legs"].is_array());
-    ASSERT_GE((*body)["legs"].size(), 1u);
+    ASSERT_GE((*body)["legs"].size(), 1U);
 
     const auto& leg0 = (*body)["legs"][0];
     EXPECT_TRUE(leg0.contains("instrument-type"));
@@ -86,13 +86,13 @@ TEST_F(test_Orchestrator, BuildOrderBody_Buy_ReturnsJsonWithOneLegAndBuyAction)
 
 TEST_F(test_Orchestrator, BuildOrderBody_Sell_ReturnsJsonWithOneLegAndSellAction)
 {
-    OrchestratorFixture fx;
-    fx.build_or_skip();
+    OrchestratorFixture fixture;
+    fixture.build_or_skip();
 
     std::optional<nlohmann::json> body;
     try
     {
-        body = fx.orchestrator->build_order_body(Signal::SELL);
+        body = fixture.orchestrator->build_order_body(Signal::SELL);
     } catch (const std::exception& e) {
         GTEST_SKIP() << "Skipping because build_order_body(SELL) threw (likely missing API session/config): "
                      << e.what();
@@ -101,7 +101,7 @@ TEST_F(test_Orchestrator, BuildOrderBody_Sell_ReturnsJsonWithOneLegAndSellAction
     ASSERT_TRUE(body.has_value());
 
     ASSERT_TRUE((*body)["legs"].is_array());
-    ASSERT_GE((*body)["legs"].size(), 1u);
+    ASSERT_GE((*body)["legs"].size(), 1U);
 
     const auto& leg0 = (*body)["legs"][0];
     EXPECT_EQ(leg0["action"].get<std::string>(), "Sell to Close");

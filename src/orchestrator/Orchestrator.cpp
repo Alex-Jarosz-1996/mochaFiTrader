@@ -9,7 +9,7 @@ Orchestrator::Orchestrator(TastyWorksClient& client, DX_LinkStreamer& streamer)
       dxlStreamer_(streamer),
       trAsset_(TradeableAsset::constructTradeableAsset()) {}
 
-std::optional<nlohmann::json> Orchestrator::build_order_body(Signal signal)
+auto Orchestrator::build_order_body(Signal signal) -> std::optional<nlohmann::json>
 {
     LOG_INFO("Building order body.", "ORCHESTRATOR");
     if (signal == Signal::HOLD) return std::nullopt;

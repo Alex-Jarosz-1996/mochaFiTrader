@@ -6,41 +6,41 @@
 #include "../log/Log.h"
 #include "../utils/Utils.h"
 
-OrderBuilder::OrderBuilder() {}
-OrderBuilder::~OrderBuilder() {}
+OrderBuilder::OrderBuilder() = default;
+OrderBuilder::~OrderBuilder() = default;
 
-OrderBuilder& OrderBuilder::timeInForce(std::string v)
+auto OrderBuilder::timeInForce(std::string value) -> OrderBuilder&
 {
     LOG_INFO("Constructing 'time_in_force_' variable.", "ORDER");
-    time_in_force_ = std::move(v);
+    time_in_force_ = std::move(value);
     return *this;
 }
 
-OrderBuilder& OrderBuilder::orderType(std::string v)
+auto OrderBuilder::orderType(std::string value) -> OrderBuilder&
 {
     LOG_INFO("Constructing 'order_type_' variable.", "ORDER");
-    order_type_ = std::move(v);
+    order_type_ = std::move(value);
     return *this;
 }
 
-OrderBuilder& OrderBuilder::amount(double v)
+auto OrderBuilder::amount(double value) -> OrderBuilder&
 {
     LOG_INFO("Constructing 'amount_' variable.", "ORDER");
-    amount_ = v;
+    amount_ = value;
     return *this;
 }
 
-OrderBuilder& OrderBuilder::transactionType(std::string v)
+auto OrderBuilder::transactionType(std::string value) -> OrderBuilder&
 {
     LOG_INFO("Constructing 'transaction_type_' variable.", "ORDER");
-    transaction_type_ = std::move(v);
+    transaction_type_ = std::move(value);
     return *this;
 }
 
-OrderBuilder& OrderBuilder::addLeg(
+auto OrderBuilder::addLeg(
     std::string instrument,
     std::string symbol,
-    std::string action)
+    std::string action) -> OrderBuilder&
 {
     LOG_INFO("Adding leg", "ORDER");
     Leg leg;
@@ -51,24 +51,24 @@ OrderBuilder& OrderBuilder::addLeg(
     return *this;
 }
 
-OrderBuilder& OrderBuilder::dryRun(Mode m)
+auto OrderBuilder::dryRun(Mode mode) -> OrderBuilder&
 {
     LOG_INFO("Determining if DryRun or Submit.", "ORDER");
-    mode_ = m;
+    mode_ = mode;
     return *this;
 }
 
-nlohmann::json OrderBuilder::buildAllOrderComponentsJson() const
+auto OrderBuilder::buildAllOrderComponentsJson() const -> nlohmann::json
 {
     LOG_INFO("Build Json OrderBuilder.", "ORDER");
 
     nlohmann::json legs_json = nlohmann::json::array();
-    for (const Leg& l : legs_)
+    for (const Leg& leg : legs_)
     {
         legs_json.push_back({
-            {"instrument-type", l.instrument_type},
-            {"symbol", l.symbol},
-            {"action", l.action}
+            {"instrument-type", leg.instrument_type},
+            {"symbol", leg.symbol},
+            {"action", leg.action}
         });
     }
 
@@ -81,17 +81,17 @@ nlohmann::json OrderBuilder::buildAllOrderComponentsJson() const
     };
 }
 
-nlohmann::json OrderBuilder::buildJsonToSubmitOrder(
+auto OrderBuilder::buildJsonToSubmitOrder(
     double value,
     const std::string& instrument,
     const std::string& symbol,
     const std::string& action,
-    Mode dryRun)
+    Mode dryRun) -> nlohmann::json
 {
     LOG_INFO("Building order submission logic.", "ORDER");
 
     legs_.clear();
-    
+
     return this
         ->timeInForce("GTC")
         .orderType("Notional Market")

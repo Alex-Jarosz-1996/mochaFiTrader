@@ -8,24 +8,24 @@ namespace Utils
 {
 
 // HTTP helpers
-bool isCorrectStatusCode(cpr::Response& r, int sc);
-nlohmann::json parseJsonResponse(cpr::Response& r);
+auto isCorrectStatusCode(cpr::Response& resp, int status_code) -> bool;
+auto parseJsonResponse(cpr::Response& resp) -> nlohmann::json;
 
 // JSON helpers
-bool doesJsonResponseContainDataAttr(nlohmann::json& jr);
-bool checkForAttrInsideJsonResponse(nlohmann::json& jr, const std::string& msg);
+auto doesJsonResponseContainDataAttr(nlohmann::json& json_resp) -> bool;
+auto checkForAttrInsideJsonResponse(nlohmann::json& json_resp, const std::string& msg) -> bool;
 
-inline const nlohmann::json& getJsonDataAttr(nlohmann::json& jr, const std::string& a)
+inline auto getJsonDataAttr(nlohmann::json& json_resp, const std::string& attr) -> const nlohmann::json&
 {
-    return jr.at("data").at(a);
+    return json_resp.at("data").at(attr);
 }
 
 template <typename T>
-T getJsonResponseAttrValue(nlohmann::json& jr, const std::string& a)
+auto getJsonResponseAttrValue(nlohmann::json& json_resp, const std::string& attr) -> T
 {
-    return getJsonDataAttr(jr, a).get<T>();
+    return getJsonDataAttr(json_resp, attr).get<T>();
 }
 
-size_t getJsonResponseAttrArraySize(nlohmann::json& jr, const std::string& a);
+auto getJsonResponseAttrArraySize(nlohmann::json& json_resp, const std::string& attr) -> size_t;
 
 } // namespace Utils

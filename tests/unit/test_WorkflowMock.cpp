@@ -5,21 +5,22 @@
 #include "../../src/orchestrator/Orchestrator.h"
 #include "../../src/streamer/DX_LinkStreamer.h"
 
-using ::testing::_;
 using ::testing::Return;
 using ::testing::AtLeast;
 
 TEST(test_Workflow, FullTradingLoopMock)
 {
+    static constexpr double ACCOUNT_BALANCE = 10000.0;
+
     // 1. Setup Mocks
     MockTastyWorksClient mockClient;
-    
+
     // Define expected behavior for the mock
     EXPECT_CALL(mockClient, getAccountNumber())
         .WillRepeatedly(Return("555-TEST-ACCOUNT"));
-    
+
     EXPECT_CALL(mockClient, getAccountBalance())
-        .WillRepeatedly(Return(10000.0));
+        .WillRepeatedly(Return(ACCOUNT_BALANCE));
 
     // 2. Setup Orchestrator (Injecting the mock)
     // Note: Since DX_LinkStreamer isn't virtual yet, we pass the mockClient to it too
@@ -28,7 +29,7 @@ TEST(test_Workflow, FullTradingLoopMock)
 
     // 3. Define the critical expectation: An order MUST be submitted when we signal BUY
     // We verify that the JSON passed to submitOrder contains "Buy to Open"
-    EXPECT_CALL(mockClient, submitOrder(_))
+    EXPECT_CALL(mockClient, submitOrder(testing::_))
         .Times(1)
         .WillOnce([](const nlohmann::json& body) {
             EXPECT_EQ(body["legs"][0]["action"], "Buy to Open");

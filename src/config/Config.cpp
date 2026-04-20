@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <filesystem>
 
-nlohmann::json Config::load_config_file()
+auto Config::load_config_file() -> nlohmann::json
 {
     namespace fs = std::filesystem;
     
@@ -20,14 +20,14 @@ nlohmann::json Config::load_config_file()
         throw std::runtime_error("Could not open config.json file");
     }
 
-    nlohmann::json j;
-    file >> j;
+    nlohmann::json config_json;
+    file >> config_json;
     file.close();
-    
-    return j;
+
+    return config_json;
 }
 
-std::string Config::get_config_value(std::string key)
+auto Config::get_config_value(const std::string& key) -> std::string
 {
     nlohmann::json config = Config::load_config_file();
     std::string config_value = config.value(key, "");

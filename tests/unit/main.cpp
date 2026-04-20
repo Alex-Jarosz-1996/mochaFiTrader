@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "../../src/log/Log.h"
 
-int main(int argc, char** argv)
+auto main(int argc, char** argv) -> int
 {
     Log::init("tests/logs/", spdlog::level::off); // Keep tests quiet but initialized
     ::testing::InitGoogleTest(&argc, argv);

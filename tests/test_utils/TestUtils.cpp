@@ -1,66 +1,61 @@
 #include <iostream>
 #include <string>
+#include <algorithm>
+#include <cmath>
 
 #include "TestUtils.h"
 
-MarketQuote make_unknown(const std::string& sym)
+auto make_unknown(const std::string& sym) -> MarketQuote
 {
-    MarketQuote q;
-    q.symbol = sym;
-    return q;
+    MarketQuote mkt;
+    mkt.symbol = sym;
+    return mkt;
 }
 
-MarketQuote make_trade(const std::string& sym, double price)
+auto make_trade(const std::string& sym, double price) -> MarketQuote
 {
-    MarketQuote q;
-    q.symbol = sym;
-    q.price = price;
+    MarketQuote mkt;
+    mkt.symbol = sym;
+    mkt.price = price;
     // bid/ask intentionally empty
-    return q;
+    return mkt;
 }
 
-MarketQuote make_quote(const std::string& sym,
-                       double bid,
-                       double ask,
-                       double bidSize,
-                       double askSize)
+auto make_quote(const std::string& sym, QuoteParams params) -> MarketQuote
 {
-    MarketQuote q;
-    q.symbol = sym;
-    q.bidPrice = bid;
-    q.askPrice = ask;
-    q.bidSize = bidSize;
-    q.askSize = askSize;
+    MarketQuote mkt;
+    mkt.symbol   = sym;
+    mkt.bidPrice = params.bid;
+    mkt.askPrice = params.ask;
+    mkt.bidSize  = params.bidSize;
+    mkt.askSize  = params.askSize;
     // price intentionally empty
-    return q;
+    return mkt;
 }
 
-MarketQuote make_quote_with_imbalance(const std::string& sym,
-                                      double midPrice,
-                                      double spread,
-                                      double totalSize,
-                                      double imbalance_norm)
+auto make_quote_with_imbalance(const std::string& sym, ImbalanceQuoteParams params) -> MarketQuote
 {
     // clamp imbalance into [-0.999, 0.999] to keep sizes positive
-    const double I = std::max(-0.999, std::min(0.999, imbalance_norm));
+    static constexpr double IMB_MIN  = -0.999;
+    static constexpr double IMB_MAX  =  0.999;
+    static constexpr double HALF     =  0.5;
+
+    const double imb_clamped = std::max(IMB_MIN, std::min(IMB_MAX, params.imbalanceNorm));
 
     // b+a=T and (b-a)/(b+a)=I => b=T*(1+I)/2, a=T*(1-I)/2
-    const double bidSize = totalSize * (1.0 + I) * 0.5;
-    const double askSize = totalSize * (1.0 - I) * 0.5;
+    const double bid_size = params.totalSize * (1.0 + imb_clamped) * HALF;
+    const double ask_size = params.totalSize * (1.0 - imb_clamped) * HALF;
 
-    const double bid = midPrice - spread * 0.5;
-    const double ask = midPrice + spread * 0.5;
+    const double bid = params.midPrice - params.spread * HALF;
+    const double ask = params.midPrice + params.spread * HALF;
 
-    return make_quote(sym, bid, ask, bidSize, askSize);
+    return make_quote(sym, QuoteParams{bid, ask, bid_size, ask_size});
 }
 
-MarketQuote make_mid_quote(const std::string& sym,
-                           double mid,
-                           double spread,
-                           double bidSize,
-                           double askSize)
+auto make_mid_quote(const std::string& sym, MidQuoteParams params) -> MarketQuote
 {
-    const double bid = mid - spread * 0.5;
-    const double ask = mid + spread * 0.5;
-    return make_quote(sym, bid, ask, bidSize, askSize);
+    static constexpr double HALF = 0.5;
+    const double bid = params.mid - params.spread * HALF;
+    const double ask = params.mid + params.spread * HALF;
+    return make_quote(sym, QuoteParams{bid, ask, params.bidSize, params.askSize});
 }

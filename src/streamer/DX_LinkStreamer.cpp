@@ -21,7 +21,7 @@ DX_LinkStreamer::DX_LinkStreamer(TastyWorksClient& client)
     construct_keep_alive_msg();
 }
 
-DX_LinkStreamer::~DX_LinkStreamer() {}
+DX_LinkStreamer::~DX_LinkStreamer() = default;
 
 void DX_LinkStreamer::populate_class_attrs()
 {
@@ -67,7 +67,7 @@ void DX_LinkStreamer::construct_feed_setup_msg()
     feed_setup_msg = nlohmann::json{
         {"type", "FEED_SETUP"},
         {"channel", FEED_CHANNEL},
-        {"acceptAggregationPeriod", 0.1},
+        {"acceptAggregationPeriod", FEED_AGGREGATION_PERIOD},
         {"acceptDataFormat", "FEED_SETUP"},
         // {"acceptDataFormat", "COMPACT"},
         {"acceptEventFields", {
@@ -144,35 +144,35 @@ void DX_LinkStreamer::send_periodic_msgs()
     send(keep_alive_msg);
 }
 
-MarketQuote DX_LinkStreamer::parse_quote(const nlohmann::json& entry)
+auto DX_LinkStreamer::parse_quote(const nlohmann::json& entry) -> MarketQuote
 {
-    MarketQuote q;
-    q.symbol = entry.value("eventSymbol", "");
-    q.price = safe_parse_quote(entry, "price");
-    q.bidPrice = safe_parse_quote(entry, "bidPrice");
-    q.askPrice = safe_parse_quote(entry, "askPrice");
-    q.dayVolume = safe_parse_quote(entry, "dayVolume");
-    q.size = safe_parse_quote(entry, "size");
-    q.bidSize = safe_parse_quote(entry, "bidSize");
-    q.askSize = safe_parse_quote(entry, "askSize");
-    return q;
+    MarketQuote quote;
+    quote.symbol = entry.value("eventSymbol", "");
+    quote.price = safe_parse_quote(entry, "price");
+    quote.bidPrice = safe_parse_quote(entry, "bidPrice");
+    quote.askPrice = safe_parse_quote(entry, "askPrice");
+    quote.dayVolume = safe_parse_quote(entry, "dayVolume");
+    quote.size = safe_parse_quote(entry, "size");
+    quote.bidSize = safe_parse_quote(entry, "bidSize");
+    quote.askSize = safe_parse_quote(entry, "askSize");
+    return quote;
 }
 
 void DX_LinkStreamer::on_open(connection_hdl hdl)
 {
-    conn_hdl = hdl;
+    conn_hdl = std::move(hdl);
     send_initial_msgs();
 
     keep_alive_thread = std::thread([this]() {
         while (true)
         {    
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            std::this_thread::sleep_for(std::chrono::milliseconds(KEEP_ALIVE_INTERVAL_MS));
             send_periodic_msgs();
         }
     });
 }
 
-void DX_LinkStreamer::on_msg(client::message_ptr msg)
+void DX_LinkStreamer::on_msg(const client::message_ptr& msg)
 {
     try
     {
@@ -195,7 +195,7 @@ void DX_LinkStreamer::on_msg(client::message_ptr msg)
     }
 }
 
-std::shared_ptr<boost::asio::ssl::context> DX_LinkStreamer::create_tls_context()
+auto DX_LinkStreamer::create_tls_context() -> std::shared_ptr<boost::asio::ssl::context>
 {
     auto ctx = std::make_shared<boost::asio::ssl::context>(boost::asio::ssl::context::sslv23);
     ctx->set_options(boost::asio::ssl::context::default_workarounds |
@@ -209,29 +209,29 @@ void DX_LinkStreamer::setup_handlers()
 {
     c.set_open_handler([this](connection_hdl hdl)
     {
-        on_open(hdl);
+        on_open(std::move(hdl));
     });
 
-    c.set_message_handler([this](connection_hdl, client::message_ptr msg)
+    c.set_message_handler([this](const connection_hdl&, const client::message_ptr& msg)
     {
         on_msg(msg);
     });
 
     // tls init handler for secure connections
-    c.set_tls_init_handler([this](connection_hdl)
+    c.set_tls_init_handler([this](const connection_hdl&)
     {
         return create_tls_context();
     });
 }
 
-client::connection_ptr DX_LinkStreamer::create_connection()
+auto DX_LinkStreamer::create_connection() -> client::connection_ptr
 {
-    websocketpp::lib::error_code ec;
-    client::connection_ptr con = c.get_connection(ws_url, ec);
-    
-    if (ec) 
+    websocketpp::lib::error_code error_code;
+    client::connection_ptr con = c.get_connection(ws_url, error_code);
+
+    if (error_code)
     {
-        throw std::runtime_error("Connection initialization error: " + ec.message());
+        throw std::runtime_error("Connection initialization error: " + error_code.message());
     }
 
     return con;
@@ -249,7 +249,7 @@ void DX_LinkStreamer::run()
     c.run();
 }
 
-std::optional<double> DX_LinkStreamer::safe_parse_quote(const nlohmann::json& pckt, const std::string& key)
+auto DX_LinkStreamer::safe_parse_quote(const nlohmann::json& pckt, const std::string& key) -> std::optional<double>
 {
     if (pckt.contains(key) && pckt[key].is_number()) {
         return pckt[key].get<double>();

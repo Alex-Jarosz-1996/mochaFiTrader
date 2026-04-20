@@ -31,7 +31,7 @@ TEST(test_Config, TradeableAssetsConfigCheck)
     EXPECT_FALSE(val.empty());
 }
 
-TEST(test_Config, InstrumentTypeConfigCheck)
+TEST(test_Config, Instrument_typeConfigCheck)
 {
     std::string val = Config::get_config_value("INSTRUMENT_TYPE");
     EXPECT_FALSE(val.empty());
