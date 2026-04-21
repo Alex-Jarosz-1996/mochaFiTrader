@@ -252,10 +252,10 @@ auto TastyWorksClient::getAccountBalance() -> double
                 auto nlv = Utils::getJsonResponseAttrValue<std::string>(json_response, "net-liquidating-value");
                 double nlv_d = std::stod(nlv);
 
-                // if (nlv_d < ACCOUNT_MIN)
-                // {
-                //     throw std::invalid_argument("Unable to trade as account is less than threshold.");
-                // }
+                if (nlv_d < ACCOUNT_MIN)
+                {
+                    throw std::invalid_argument("Unable to trade as account is less than threshold.");
+                }
                 
                 return nlv_d;
             }

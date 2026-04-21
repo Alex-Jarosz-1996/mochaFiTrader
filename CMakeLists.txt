@@ -32,12 +32,12 @@ endif()
 # # -------------------------
 # # Memory Analysis (Valgrind / Memcheck)
 # # -------------------------
-# find_program(VALGRIND_EXE NAMES "valgrind")
-# if(VALGRIND_EXE)
-#     set(MEMORYCHECK_COMMAND ${VALGRIND_EXE})
-#     set(MEMORYCHECK_COMMAND_OPTIONS "--leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1")
-#     message(STATUS "Valgrind found: ${VALGRIND_EXE}")
-# endif()
+find_program(VALGRIND_EXE NAMES "valgrind")
+if(VALGRIND_EXE)
+    set(MEMORYCHECK_COMMAND ${VALGRIND_EXE})
+    set(MEMORYCHECK_COMMAND_OPTIONS "--leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1")
+    message(STATUS "Valgrind found: ${VALGRIND_EXE}")
+endif()
 
 # -------------------------
 # Source files
@@ -153,7 +153,14 @@ target_link_libraries(runUnitTests PRIVATE
     httplib::httplib
 )
 
-add_test(NAME UnitTests COMMAND runUnitTests)
+if(VALGRIND_EXE)
+    set(VALGRIND_FLAGS --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1)
+    add_test(NAME UnitTests COMMAND ${VALGRIND_EXE} ${VALGRIND_FLAGS} $<TARGET_FILE:runUnitTests>
+             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+else()
+    add_test(NAME UnitTests COMMAND runUnitTests
+             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+endif()
 
 # -------------------------
 # Integration Tests
@@ -178,7 +185,13 @@ target_link_libraries(runIntegrationTests PRIVATE
     Threads::Threads
 )
 
-add_test(NAME IntegrationTests COMMAND runIntegrationTests)
+if(VALGRIND_EXE)
+    add_test(NAME IntegrationTests COMMAND ${VALGRIND_EXE} ${VALGRIND_FLAGS} $<TARGET_FILE:runIntegrationTests>
+             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+else()
+    add_test(NAME IntegrationTests COMMAND runIntegrationTests
+             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+endif()
 
 # -------------------------
 # Run All Tests
@@ -227,4 +240,10 @@ target_link_libraries(runAllTests PRIVATE
     Threads::Threads
 )
 
-add_test(NAME AllTests COMMAND runAllTests)
+if(VALGRIND_EXE)
+    add_test(NAME AllTests COMMAND ${VALGRIND_EXE} ${VALGRIND_FLAGS} $<TARGET_FILE:runAllTests>
+             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+else()
+    add_test(NAME AllTests COMMAND runAllTests
+             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+endif()

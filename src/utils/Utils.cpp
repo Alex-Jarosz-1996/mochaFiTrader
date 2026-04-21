@@ -10,7 +10,10 @@ auto isCorrectStatusCode(cpr::Response& resp, int status_code) -> bool
 
 auto parseJsonResponse(cpr::Response& resp) -> nlohmann::json
 {
-    return nlohmann::json::parse(resp.text);
+    auto json = nlohmann::json::parse(resp.text);
+    if (!json.is_object())
+        throw std::invalid_argument("Expected JSON object at root");
+    return json;
 }
 
 auto doesJsonResponseContainDataAttr(nlohmann::json& json_resp) -> bool

@@ -11,15 +11,18 @@ using ::testing::Return;
 
 TEST(test_SystemWorkflow, SimulatedMarketToOrderExecution)
 {
-    static constexpr int    MACD_FAST       = 2;
-    static constexpr int    MACD_SLOW       = 4;
-    static constexpr int    MACD_SIGNAL     = 2;
-    static constexpr double ACCOUNT_BALANCE = 5000.0;
-    static constexpr double TRADEABLE_AMT   = 2500.0;
-    static constexpr double SEED_PRICE      = 100.0;
-    static constexpr double TREND_PRICE_1   = 110.0;
-    static constexpr double TREND_PRICE_2   = 120.0;
-    static constexpr double TREND_PRICE_3   = 130.0;
+    static constexpr int    MACD_FAST         = 2;
+    static constexpr int    MACD_SLOW         = 4;
+    static constexpr int    MACD_SIGNAL       = 2;
+    // trigger_window = 3 * MACD_SLOW = 12; need 1 seed + 12 valid ticks to clear it
+    static constexpr int    WARMUP_TICKS      = 13;
+    static constexpr double ACCOUNT_BALANCE   = 5000.0;
+    static constexpr double TRADEABLE_AMT     = 2500.0;
+    static constexpr double SEED_PRICE        = 100.0;
+    // Drop 14% (within the 15% jump-rejection threshold) to push MACD below signal line
+    static constexpr double DOWNTREND_PRICE   = 86.0;
+    // Recover ~11.6% — fast EMA rebounds ahead of slow EMA, crossing MACD above signal → BUY
+    static constexpr double RECOVERY_PRICE    = 96.0;
 
     // 1. Setup Mocks
     MockTastyWorksClient mockClient;
@@ -53,14 +56,14 @@ TEST(test_SystemWorkflow, SimulatedMarketToOrderExecution)
         orch.on_signal(sig);
     });
 
-    // Seed/Warmup ticks
-    captured_cb(make_trade("BTC/USD", SEED_PRICE));
-    captured_cb(make_trade("BTC/USD", SEED_PRICE));
-    captured_cb(make_trade("BTC/USD", SEED_PRICE));
-    captured_cb(make_trade("BTC/USD", SEED_PRICE));
+    // Seed + warmup: 1 seed tick then WARMUP_TICKS-1 flat ticks to reach valid_count == 12
+    for (int i = 0; i < WARMUP_TICKS; ++i)
+        captured_cb(make_trade("BTC/USD", SEED_PRICE));
 
-    // Trend upwards to trigger crossover
-    captured_cb(make_trade("BTC/USD", TREND_PRICE_1));
-    captured_cb(make_trade("BTC/USD", TREND_PRICE_2));
-    captured_cb(make_trade("BTC/USD", TREND_PRICE_3));
+    // Downtrend: pushes MACD negative and below the signal line
+    captured_cb(make_trade("BTC/USD", DOWNTREND_PRICE));
+    captured_cb(make_trade("BTC/USD", DOWNTREND_PRICE));
+
+    // Recovery: fast EMA rebounds faster than slow EMA → MACD crosses above signal → BUY
+    captured_cb(make_trade("BTC/USD", RECOVERY_PRICE));
 }

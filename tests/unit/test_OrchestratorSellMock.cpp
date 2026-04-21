@@ -6,7 +6,7 @@
 
 using ::testing::Return;
 
-TEST(test_Orchestrator, ExecutesSellWhenPositionExists)
+TEST(test_OrchestratorMock, ExecutesSellWhenPositionExists)
 {
     static constexpr double OK_BALANCE   = 1000.0;
     static constexpr double TRADEABLE_AMT = 500.0;

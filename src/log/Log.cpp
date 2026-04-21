@@ -57,6 +57,8 @@ void Log::shutdown()
 {
     std::lock_guard<std::mutex> lock(s_mutex);
     s_logger = nullptr;
+    s_console_sink = nullptr;
+    s_file_sink = nullptr;
     spdlog::drop_all();
     spdlog::shutdown();
 }

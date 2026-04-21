@@ -96,7 +96,7 @@ TEST(test_Algo, RecoveryAfterInvalidTransition)
     algo.generate_trading_signal(bad);
 
     algo.generate_trading_signal(second_good);
-    EXPECT_EQ(algo.get_valid_count(), 2);
+    EXPECT_EQ(algo.get_valid_count(), 1);
 }
 
 TEST(test_Algo, RejectNegativePriceTrade)

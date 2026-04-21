@@ -8,7 +8,7 @@
 using ::testing::Return;
 using ::testing::Throw;
 
-TEST(test_Orchestrator, HandlesApiExceptionsGracefully)
+TEST(test_OrchestratorMock, HandlesApiExceptionsGracefully)
 {
     static constexpr double OK_BALANCE = 1000.0;
 

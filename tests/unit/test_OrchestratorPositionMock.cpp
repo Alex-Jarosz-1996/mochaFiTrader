@@ -6,7 +6,7 @@
 
 using ::testing::Return;
 
-TEST(test_Orchestrator, PreventsDuplicateBuyWhenPositionExists)
+TEST(test_OrchestratorMock, PreventsDuplicateBuyWhenPositionExists)
 {
     static constexpr double OK_BALANCE = 1000.0;
 

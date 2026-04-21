@@ -40,8 +40,9 @@ auto Orchestrator::build_order_body(Signal signal) -> std::optional<nlohmann::js
 void Orchestrator::on_signal(Signal signal)
 {
     LOG_INFO("Executing on signal.", "ORCHESTRATOR");
+    static constexpr double ACCOUNT_MIN = 100.0;
     const double balance = twClient_.getAccountBalance();
-    if (balance <= 0.0)
+    if (balance < ACCOUNT_MIN)
     {
         throw std::invalid_argument("Unable to trade as account is less than threshold.");
     }
@@ -66,5 +67,12 @@ void Orchestrator::on_signal(Signal signal)
     std::optional<nlohmann::json> body = build_order_body(signal);
     if (!body) return;
 
-    twClient_.submitOrder(*body);
+    try
+    {
+        twClient_.submitOrder(*body);
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR(std::string("Order submission failed: ") + e.what(), "ORCHESTRATOR");
+    }
 }

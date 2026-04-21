@@ -80,6 +80,8 @@ class DX_LinkStreamer {
 
         virtual void set_on_quote(QuoteCallback qcb);
         virtual void run();
+
+        const nlohmann::json& get_authorize_msg() const { return authorize_msg; }
 };
 
 #endif // DX_LINKSTREAMER_H

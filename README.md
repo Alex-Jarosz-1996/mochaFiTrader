@@ -37,6 +37,16 @@ $ rm build/mochaFiTrader
 $ cmake --build ./build/
 ```
 
+To run valgrind individually
+```bash
+$ ctest --test-dir build
+```
+
+To run build and valgrind together
+```bash
+$ cmake --build ./build/ && ctest --test-dir build
+```
+
 3. execute .exe file (from project root)
 ```bash
 $ ./build/mochaFiTrader

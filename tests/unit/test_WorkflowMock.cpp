@@ -16,24 +16,23 @@ TEST(test_Workflow, FullTradingLoopMock)
     MockTastyWorksClient mockClient;
 
     // Define expected behavior for the mock
-    EXPECT_CALL(mockClient, getAccountNumber())
-        .WillRepeatedly(Return("555-TEST-ACCOUNT"));
-
-    EXPECT_CALL(mockClient, getAccountBalance())
-        .WillRepeatedly(Return(ACCOUNT_BALANCE));
+    EXPECT_CALL(mockClient, getDX_LinkUrl()).WillRepeatedly(Return("wss://fake.url"));
+    EXPECT_CALL(mockClient, getAPI_QuoteToken()).WillRepeatedly(Return("fake-token"));
+    EXPECT_CALL(mockClient, getAccountNumber()).WillRepeatedly(Return("555-TEST-ACCOUNT"));
+    EXPECT_CALL(mockClient, getAccountBalance()).WillRepeatedly(Return(ACCOUNT_BALANCE));
+    EXPECT_CALL(mockClient, getNumberAccountPositions()).WillRepeatedly(Return(0));
+    EXPECT_CALL(mockClient, getTradeableAmount()).WillRepeatedly(Return(ACCOUNT_BALANCE));
 
     // 2. Setup Orchestrator (Injecting the mock)
-    // Note: Since DX_LinkStreamer isn't virtual yet, we pass the mockClient to it too
-    DX_LinkStreamer streamer(mockClient); 
+    DX_LinkStreamer streamer(mockClient);
     Orchestrator orch(mockClient, streamer);
 
     // 3. Define the critical expectation: An order MUST be submitted when we signal BUY
-    // We verify that the JSON passed to submitOrder contains "Buy to Open"
     EXPECT_CALL(mockClient, submitOrder(testing::_))
         .Times(1)
         .WillOnce([](const nlohmann::json& body) {
             EXPECT_EQ(body["legs"][0]["action"], "Buy to Open");
-            EXPECT_EQ(body["legs"][0]["symbol"], "BTC/USD");
+            EXPECT_EQ(body["legs"][0]["symbol"], "BTC/USD:CXTALP");
         });
 
     // 4. Simulate the workflow: Orchestrator receives a BUY signal

@@ -19,30 +19,30 @@
 TEST(test_LiveStreamIntegrationTest, StreamInsertAndRetrieveQuote)
 {
     Log::init();
-    
-    // tastyworks
-    std::unique_ptr<TastyWorksClient> twClient = std::make_unique<TastyWorksClient>();
-    
-    // streamer
-    std::unique_ptr<DX_LinkStreamer> dxlStreamer = std::make_unique<DX_LinkStreamer>(
-        *twClient
-    );
 
-    // strategy
+    std::unique_ptr<TastyWorksClient> twClient;
+    std::unique_ptr<DX_LinkStreamer>  dxlStreamer;
+    try {
+        twClient   = std::make_unique<TastyWorksClient>();
+        dxlStreamer = std::make_unique<DX_LinkStreamer>(*twClient);
+    } catch (const std::exception& e) {
+        GTEST_SKIP() << "Skipping: unable to construct live dependencies. Reason: " << e.what();
+    }
+
     static constexpr int MACD_FAST   = 3;
     static constexpr int MACD_SLOW   = 6;
     static constexpr int MACD_SIGNAL = 3;
-    std::unique_ptr<MACD> strategy = std::make_unique<MACD>(
+    auto strategy = std::make_unique<MACD>(
         MACD::Params{.fast = MACD_FAST, .slow = MACD_SLOW, .signal = MACD_SIGNAL}
     );
 
     bool called = false;
     dxlStreamer->set_on_quote([&](const MarketQuote& quote)
     {
-        Signal signal = strategy->generate_trading_signal(quote);
+        strategy->generate_trading_signal(quote);
         called = true;
     });
-    
+
     SUCCEED();
 }
 

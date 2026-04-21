@@ -17,16 +17,21 @@ struct OrchestratorFixture
     std::unique_ptr<DX_LinkStreamer> streamer;
     std::unique_ptr<Orchestrator> orchestrator;
 
-    void build_or_skip()
+    // Returns false and sets skip_reason if construction fails; true on success.
+    // Caller must call GTEST_SKIP() in the test body — GTEST_SKIP() only returns
+    // from the function it is called in, so calling it from a helper does not
+    // exit the test body.
+    auto try_build(std::string& skip_reason) -> bool
     {
         try
         {
             twClient = std::make_unique<TastyWorksClient>();
             streamer = std::make_unique<DX_LinkStreamer>(*twClient);
             orchestrator = std::make_unique<Orchestrator>(*twClient, *streamer);
+            return true;
         } catch (const std::exception& e) {
-            GTEST_SKIP() << "Skipping Orchestrator tests: unable to construct dependencies. "
-                         << "Reason: " << e.what();
+            skip_reason = std::string("unable to construct dependencies. Reason: ") + e.what();
+            return false;
         }
     }
 };
@@ -43,7 +48,8 @@ protected:
 TEST_F(test_Orchestrator, BuildOrderBody_ReturnsNulloptOnHold)
 {
     OrchestratorFixture fixture;
-    fixture.build_or_skip();
+    std::string skip_reason;
+    if (!fixture.try_build(skip_reason)) GTEST_SKIP() << "Skipping Orchestrator tests: " << skip_reason;
 
     auto body = fixture.orchestrator->build_order_body(Signal::HOLD);
     EXPECT_FALSE(body.has_value());
@@ -52,7 +58,8 @@ TEST_F(test_Orchestrator, BuildOrderBody_ReturnsNulloptOnHold)
 TEST_F(test_Orchestrator, BuildOrderBody_Buy_ReturnsJsonWithOneLegAndBuyAction) // NOLINT(readability-function-cognitive-complexity)
 {
     OrchestratorFixture fixture;
-    fixture.build_or_skip();
+    std::string skip_reason;
+    if (!fixture.try_build(skip_reason)) GTEST_SKIP() << "Skipping Orchestrator tests: " << skip_reason;
 
     std::optional<nlohmann::json> body;
     try
@@ -87,7 +94,8 @@ TEST_F(test_Orchestrator, BuildOrderBody_Buy_ReturnsJsonWithOneLegAndBuyAction) 
 TEST_F(test_Orchestrator, BuildOrderBody_Sell_ReturnsJsonWithOneLegAndSellAction)
 {
     OrchestratorFixture fixture;
-    fixture.build_or_skip();
+    std::string skip_reason;
+    if (!fixture.try_build(skip_reason)) GTEST_SKIP() << "Skipping Orchestrator tests: " << skip_reason;
 
     std::optional<nlohmann::json> body;
     try

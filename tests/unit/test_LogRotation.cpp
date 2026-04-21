@@ -12,6 +12,9 @@ TEST(test_Log, RotatesFileWhenSizeExceeded)
     std::string test_log_dir = "test_logs/";
     fs::remove_all(test_log_dir);
 
+    // Reset any previously initialized logger so Log::init below is not a no-op
+    Log::shutdown();
+
     // Initialize with a debug level
     Log::init(test_log_dir, spdlog::level::debug);
 
@@ -32,4 +35,7 @@ TEST(test_Log, RotatesFileWhenSizeExceeded)
 
     Log::shutdown();
     fs::remove_all(test_log_dir);
+
+    // Restore the test logger so subsequent tests can still log
+    Log::init("tests/logs/", spdlog::level::off);
 }
