@@ -13,8 +13,8 @@
 #include <mutex>
 #include <atomic>
 
-#include "../marketquote/MarketQuote.h"
-#include "../tastyworks/TastyWorks.h"
+#include "src/marketquote/MarketQuote.h"
+#include "src/tastyworks/TastyWorks.h"
 
 typedef websocketpp::client<websocketpp::config::asio_tls_client> client;
 

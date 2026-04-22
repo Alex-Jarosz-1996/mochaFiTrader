@@ -1,7 +1,7 @@
 #ifndef TICKTYPE_H
 #define TICKTYPE_H
 
-#include "../marketquote/MarketQuote.h"
+#include "src/marketquote/MarketQuote.h"
 
 enum class TickType
 {

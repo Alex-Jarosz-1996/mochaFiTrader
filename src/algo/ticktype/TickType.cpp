@@ -1,6 +1,6 @@
 #include "TickType.h"
 
-#include "../../../src/marketquote/MarketQuote.h"
+#include "src/marketquote/MarketQuote.h"
 
 auto get_tick_type(const MarketQuote& mkt_quote) -> TickType
 {

@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include "../test_utils/MockTastyWorksClient.h"
-#include "../test_utils/MockDX_LinkStreamer.h"
-#include "../../src/orchestrator/Orchestrator.h"
+#include "tests/test_utils/MockTastyWorksClient.h"
+#include "tests/test_utils/MockDX_LinkStreamer.h"
+#include "src/orchestrator/Orchestrator.h"
 
 using ::testing::Return;
 

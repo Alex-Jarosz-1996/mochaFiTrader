@@ -1,8 +1,8 @@
 #include "Orchestrator.h"
-#include "../../src/order/OrderType.h"
-#include "../../src/order/OrderBuilder.h"
-#include "../../src/model/TradeableAsset.h"
-#include "../../src/log/Log.h"
+#include "src/order/OrderType.h"
+#include "src/order/OrderBuilder.h"
+#include "src/model/TradeableAsset.h"
+#include "src/log/Log.h"
 
 Orchestrator::Orchestrator(TastyWorksClient& client, DX_LinkStreamer& streamer)
     : twClient_(client),

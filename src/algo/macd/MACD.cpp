@@ -1,7 +1,7 @@
 #include "MACD.h"
-#include "../Signal.h"
-#include "../../marketquote/MarketQuote.h"
-#include "../../algo/ticktype/TickType.h"
+#include "src/algo/Signal.h"
+#include "src/marketquote/MarketQuote.h"
+#include "src/algo/ticktype/TickType.h"
 
 #include <optional>
 #include <vector>

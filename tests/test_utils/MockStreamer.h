@@ -1,7 +1,7 @@
 #include <functional>
 #include <vector>
 
-#include "../../src/marketquote/MarketQuote.h"
+#include "src/marketquote/MarketQuote.h"
 
 class MockStreamer {
 public:

@@ -7,13 +7,13 @@
 #include <memory>
 #include <vector>
 
-#include "../test_utils/MockStreamer.h"
-#include "../test_utils/TestUtils.h"
-#include "../../src/tastyworks/TastyWorks.h"
-#include "../../src/streamer/DX_LinkStreamer.h"
-#include "../../src/marketquote/MarketQuote.h"
-#include "../../src/log/Log.h"
-#include "../../src/algo/macd/MACD.h"
+#include "tests/test_utils/MockStreamer.h"
+#include "tests/test_utils/TestUtils.h"
+#include "src/tastyworks/TastyWorks.h"
+#include "src/streamer/DX_LinkStreamer.h"
+#include "src/marketquote/MarketQuote.h"
+#include "src/log/Log.h"
+#include "src/algo/macd/MACD.h"
 
 
 TEST(test_LiveStreamIntegrationTest, StreamInsertAndRetrieveQuote)

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include "../../src/tastyworks/TastyWorks.h"
-#include "../../src/log/Log.h"
-#include "../../src/config/Config.h"
+#include "src/tastyworks/TastyWorks.h"
+#include "src/log/Log.h"
+#include "src/config/Config.h"
 
 class AuthenticationIntegrationTest : public ::testing::Test {
 protected:

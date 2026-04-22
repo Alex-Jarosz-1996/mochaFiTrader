@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../../src/log/Log.h"
+#include "src/log/Log.h"
 
 TEST(test_Log, CanInitializeLogger)
 {

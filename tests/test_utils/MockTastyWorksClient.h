@@ -1,6 +1,6 @@
 #pragma once
 #include <gmock/gmock.h>
-#include "../../src/tastyworks/TastyWorks.h"
+#include "src/tastyworks/TastyWorks.h"
 
 class MockTastyWorksClient : public TastyWorksClient {
 public:

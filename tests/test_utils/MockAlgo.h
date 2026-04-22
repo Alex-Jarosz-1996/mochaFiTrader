@@ -1,6 +1,6 @@
 #pragma once
 #include <gmock/gmock.h>
-#include "../../src/algo/algo/Algo.h"
+#include "src/algo/algo/Algo.h"
 
 class MockAlgo : public Algo {
 public:

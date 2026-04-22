@@ -1,9 +1,9 @@
 #ifndef MACD_H
 #define MACD_H
 
-#include "../algo/Algo.h"
-#include "../../marketquote/MarketQuote.h"
-#include "../Signal.h"
+#include "src/algo/algo/Algo.h"
+#include "src/marketquote/MarketQuote.h"
+#include "src/algo/Signal.h"
 
 #include <optional>
 #include <vector>

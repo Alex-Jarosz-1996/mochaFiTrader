@@ -2,9 +2,9 @@
 #include <gmock/gmock.h>
 #include <memory>
 
-#include "../../src/log/Log.h"
-#include "../../src/streamer/DX_LinkStreamer.h"
-#include "../test_utils/MockTastyWorksClient.h"
+#include "src/log/Log.h"
+#include "src/streamer/DX_LinkStreamer.h"
+#include "tests/test_utils/MockTastyWorksClient.h"
 
 using ::testing::Return;
 

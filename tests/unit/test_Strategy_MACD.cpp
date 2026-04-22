@@ -4,11 +4,11 @@
 #include <string>
 #include <vector>
 
-#include "../../src/algo/macd/MACD.h"
-#include "../../src/algo/Signal.h"
-#include "../../src/marketquote/MarketQuote.h"
+#include "src/algo/macd/MACD.h"
+#include "src/algo/Signal.h"
+#include "src/marketquote/MarketQuote.h"
 
-#include "../test_utils/TestUtils.h"
+#include "tests/test_utils/TestUtils.h"
 
 // Shared MACD params used across all tests (trigger_window = 3 * slow = 18)
 static constexpr int FAST_PERIOD   = 3;

@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 
-#include "../../src/marketquote/MarketQuote.h"
+#include "src/marketquote/MarketQuote.h"
 
-#include "../test_utils/TestUtils.h"
+#include "tests/test_utils/TestUtils.h"
 
 // TickType::Unknown
 TEST(test_Strategy_Algo, RejectsUnknown)

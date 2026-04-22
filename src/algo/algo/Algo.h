@@ -6,8 +6,8 @@
 #include <vector>
 #include <string>
 
-#include "../../marketquote/MarketQuote.h"
-#include "../Signal.h"
+#include "src/marketquote/MarketQuote.h"
+#include "src/algo/Signal.h"
 
 class Algo {
     protected:

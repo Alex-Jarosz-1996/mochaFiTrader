@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include "../../src/config/Config.h"
-#include "../../src/model/TradeableAsset.h"
+#include "src/config/Config.h"
+#include "src/model/TradeableAsset.h"
 
 TEST(test_TradeableAsset, CanConstructTradeableAsset)
 {

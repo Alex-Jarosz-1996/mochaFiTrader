@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 
-#include "../../src/log/Log.h"
-#include "../../src/order/OrderBuilder.h"
+#include "src/log/Log.h"
+#include "src/order/OrderBuilder.h"
 
 class test_OrderBuilder : public ::testing::Test {
 protected:

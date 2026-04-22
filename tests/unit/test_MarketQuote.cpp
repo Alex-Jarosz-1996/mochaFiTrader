@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../../src/marketquote/MarketQuote.h"
+#include "src/marketquote/MarketQuote.h"
 
 TEST(test_MarketQuote, DefaultIsNullOrEmptyValue)
 {

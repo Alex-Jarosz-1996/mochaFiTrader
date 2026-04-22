@@ -1,6 +1,6 @@
-#include "../../src/marketquote/MarketQuote.h"
-#include "../../src/algo/Signal.h"
-#include "../../src/algo/algo/Algo.h"
+#include "src/marketquote/MarketQuote.h"
+#include "src/algo/Signal.h"
+#include "src/algo/algo/Algo.h"
 
 class AlgoHarness : public Algo {
     public:

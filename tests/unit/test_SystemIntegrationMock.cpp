@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include "../test_utils/MockTastyWorksClient.h"
-#include "../test_utils/MockDX_LinkStreamer.h"
-#include "../test_utils/TestUtils.h"
-#include "../../src/orchestrator/Orchestrator.h"
-#include "../../src/algo/macd/MACD.h"
+#include "tests/test_utils/MockTastyWorksClient.h"
+#include "tests/test_utils/MockDX_LinkStreamer.h"
+#include "tests/test_utils/TestUtils.h"
+#include "src/orchestrator/Orchestrator.h"
+#include "src/algo/macd/MACD.h"
 
 using ::testing::Invoke;
 using ::testing::Return;

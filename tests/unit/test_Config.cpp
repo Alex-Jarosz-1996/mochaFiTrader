@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../../src/config/Config.h"
+#include "src/config/Config.h"
 
 TEST(test_Config, TastyWorksBaseUrlConfigCheck)
 {

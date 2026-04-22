@@ -3,11 +3,11 @@
 #include <optional>
 #include <stdexcept>
 
-#include "../../src/log/Log.h"
-#include "../../src/orchestrator/Orchestrator.h"
-#include "../../src/tastyworks/TastyWorks.h"
-#include "../../src/streamer/DX_LinkStreamer.h"
-#include "../../src/algo/Signal.h"
+#include "src/log/Log.h"
+#include "src/orchestrator/Orchestrator.h"
+#include "src/tastyworks/TastyWorks.h"
+#include "src/streamer/DX_LinkStreamer.h"
+#include "src/algo/Signal.h"
 
 // Helper to try to build a working orchestrator stack.
 // If config/credentials aren't present, skip the test instead of failing.

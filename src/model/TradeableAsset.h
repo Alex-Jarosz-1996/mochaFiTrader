@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-#include "../../src/config/Config.h"
+#include "src/config/Config.h"
 
 struct TradeableAsset {
     std::string symbol;

@@ -73,24 +73,8 @@ set(MAIN_SOURCES
     src/main.cpp
 )
 
-# project headers
-include_directories(
-    ${CMAKE_SOURCE_DIR}/src/tastyworks
-    ${CMAKE_SOURCE_DIR}/src/streamer
-    ${CMAKE_SOURCE_DIR}/src/config
-    ${CMAKE_SOURCE_DIR}/src/log
-    ${CMAKE_SOURCE_DIR}/src/algo
-    ${CMAKE_SOURCE_DIR}/src/algo/algo
-    ${CMAKE_SOURCE_DIR}/src/algo/macd
-    ${CMAKE_SOURCE_DIR}/src/algo/vmacd
-    ${CMAKE_SOURCE_DIR}/src/algo/rsi
-    ${CMAKE_SOURCE_DIR}/src/algo/ticktype
-    ${CMAKE_SOURCE_DIR}/src/marketquote/
-    ${CMAKE_SOURCE_DIR}/src/model/
-    ${CMAKE_SOURCE_DIR}/src/orchestrator/
-    ${CMAKE_SOURCE_DIR}/src/order/
-    ${CMAKE_SOURCE_DIR}/src/utils/
-)
+# project headers — use src/... and tests/... paths everywhere
+target_include_directories(mocha_core PUBLIC ${CMAKE_SOURCE_DIR})
 
 # -------------------------
 # Dependencies

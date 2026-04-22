@@ -5,10 +5,10 @@
 #include <string>
 #include <nlohmann/json.hpp>
 
-#include "../../src/tastyworks/TastyWorks.h"
-#include "../../src/streamer/DX_LinkStreamer.h"
-#include "../../src/algo/Signal.h"
-#include "../../src/model/TradeableAsset.h"
+#include "src/tastyworks/TastyWorks.h"
+#include "src/streamer/DX_LinkStreamer.h"
+#include "src/algo/Signal.h"
+#include "src/model/TradeableAsset.h"
 
 class Orchestrator
 {

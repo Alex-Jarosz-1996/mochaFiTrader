@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "../../src/algo/rsi/RSI.h"
-#include "../test_utils/TestUtils.h"
+#include "src/algo/rsi/RSI.h"
+#include "tests/test_utils/TestUtils.h"
 
 // Shared RSI params
 static constexpr int    STANDARD_PERIOD    = 14;

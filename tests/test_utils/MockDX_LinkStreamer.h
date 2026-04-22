@@ -1,7 +1,7 @@
 #pragma once
 
 #include <gmock/gmock.h>
-#include "../../src/streamer/DX_LinkStreamer.h"
+#include "src/streamer/DX_LinkStreamer.h"
 
 class MockDX_LinkStreamer : public DX_LinkStreamer
 {

@@ -6,9 +6,9 @@
 #include <cpr/cpr.h>
 #include <nlohmann/json.hpp>
 
-#include "../config/Config.h"
-#include "../log/Log.h"
-#include "../utils/Utils.h"
+#include "src/config/Config.h"
+#include "src/log/Log.h"
+#include "src/utils/Utils.h"
 
 TastyWorksClient::TastyWorksClient(bool auto_init)
 {

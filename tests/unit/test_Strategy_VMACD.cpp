@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 
-#include "../../src/algo/vmacd/VMACD.h"
-#include "../test_utils/TestUtils.h"
+#include "src/algo/vmacd/VMACD.h"
+#include "tests/test_utils/TestUtils.h"
 
 // Shared VMACD params used across all tests
 static constexpr int FAST_PERIOD   = 3;

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <string_view>
 
-#include "../../src/order/OrderType.h"
+#include "src/order/OrderType.h"
 
 TEST(test_OrderType, ExecuteConstants_HaveExpectedValues)
 {

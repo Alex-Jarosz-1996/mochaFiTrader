@@ -2,9 +2,9 @@
 #include <exception>
 
 #include "DX_LinkStreamer.h"
-#include "../marketquote/MarketQuote.h"
-#include "../config/Config.h"
-#include "../tastyworks/TastyWorks.h"
+#include "src/marketquote/MarketQuote.h"
+#include "src/config/Config.h"
+#include "src/tastyworks/TastyWorks.h"
 
 DX_LinkStreamer::DX_LinkStreamer(TastyWorksClient& client)
     : client_(client)

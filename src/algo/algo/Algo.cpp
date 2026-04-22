@@ -1,6 +1,6 @@
 #include "Algo.h"
-#include "../Signal.h"
-#include "../ticktype/TickType.h"
+#include "src/algo/Signal.h"
+#include "src/algo/ticktype/TickType.h"
 
 #include <optional>
 #include <vector>

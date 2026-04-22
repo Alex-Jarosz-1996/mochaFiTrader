@@ -4,7 +4,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-#include "../../src/algo/Signal.h"
+#include "src/algo/Signal.h"
 
 class OrderBuilder {
 public:

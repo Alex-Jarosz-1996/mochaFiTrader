@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
-#include "../../src/tastyworks/TastyWorks.h"
-#include "../../src/orchestrator/Orchestrator.h"
-#include "../../src/streamer/DX_LinkStreamer.h"
-#include "../../src/log/Log.h"
+#include "src/tastyworks/TastyWorks.h"
+#include "src/orchestrator/Orchestrator.h"
+#include "src/streamer/DX_LinkStreamer.h"
+#include "src/log/Log.h"
 
 TEST(OrderExecutionIntegration, BuildAndVerifyDryRunOrder) {
     Log::init("src/log/");

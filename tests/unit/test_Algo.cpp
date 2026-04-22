@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include "../../src/algo/algo/Algo.h"
-#include "../test_utils/TestUtils.h"
+#include "src/algo/algo/Algo.h"
+#include "tests/test_utils/TestUtils.h"
 
 namespace {
 class MockAlgo : public Algo {

@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <memory>
-#include "../../src/tastyworks/TastyWorks.h"
-#include "../../src/log/Log.h"
-#include "../test_utils/MockTastyWorksClient.h"
+#include "src/tastyworks/TastyWorks.h"
+#include "src/log/Log.h"
+#include "tests/test_utils/MockTastyWorksClient.h"
 
 using ::testing::Return;
 
