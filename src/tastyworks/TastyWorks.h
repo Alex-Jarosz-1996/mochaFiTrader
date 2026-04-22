@@ -18,8 +18,6 @@ private:
   cpr::Header _h;
   cpr::Header _h_auth;
 
-  const double ACCOUNT_MIN = 100;
-  const double TRADE_FACTOR = 0.5;
 
   static constexpr int HTTP_TIMEOUT_MS = 5000;
   static constexpr int HTTP_OK = 200;

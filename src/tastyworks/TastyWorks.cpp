@@ -252,7 +252,7 @@ auto TastyWorksClient::getAccountBalance() -> double
                 auto nlv = Utils::getJsonResponseAttrValue<std::string>(json_response, "net-liquidating-value");
                 double nlv_d = std::stod(nlv);
 
-                if (nlv_d < ACCOUNT_MIN)
+                if (nlv_d < Config::get_numeric_value("ACCOUNT_MIN"))
                 {
                     throw std::invalid_argument("Unable to trade as account is less than threshold.");
                 }
@@ -272,7 +272,7 @@ auto TastyWorksClient::getAccountBalance() -> double
 auto TastyWorksClient::getTradeableAmount() -> double
 {
     LOG_INFO("Determining tradeable amount.", "TASTYWORKS");
-    return TRADE_FACTOR * getAccountBalance();
+    return Config::get_numeric_value("TRADE_FACTOR") * getAccountBalance();
 }
 
 auto TastyWorksClient::getNumberAccountPositions() -> size_t

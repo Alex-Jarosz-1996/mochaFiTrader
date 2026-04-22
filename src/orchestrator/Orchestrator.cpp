@@ -3,6 +3,7 @@
 #include "src/order/OrderBuilder.h"
 #include "src/model/TradeableAsset.h"
 #include "src/log/Log.h"
+#include "src/config/Config.h"
 
 Orchestrator::Orchestrator(TastyWorksClient& client, DX_LinkStreamer& streamer)
     : twClient_(client),
@@ -40,9 +41,9 @@ auto Orchestrator::build_order_body(Signal signal) -> std::optional<nlohmann::js
 void Orchestrator::on_signal(Signal signal)
 {
     LOG_INFO("Executing on signal.", "ORCHESTRATOR");
-    static constexpr double ACCOUNT_MIN = 100.0;
+    const double account_min = Config::get_numeric_value("ACCOUNT_MIN");
     const double balance = twClient_.getAccountBalance();
-    if (balance < ACCOUNT_MIN)
+    if (balance < account_min)
     {
         throw std::invalid_argument("Unable to trade as account is less than threshold.");
     }
