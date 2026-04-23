@@ -21,7 +21,19 @@ DX_LinkStreamer::DX_LinkStreamer(TastyWorksClient& client)
     construct_keep_alive_msg();
 }
 
-DX_LinkStreamer::~DX_LinkStreamer() = default;
+DX_LinkStreamer::~DX_LinkStreamer()
+{
+    stop(); // NOLINT(clang-analyzer-optin.cplusplus.VirtualCall)
+    if (keep_alive_thread.joinable())
+        keep_alive_thread.join();
+}
+
+void DX_LinkStreamer::stop()
+{
+    stop_flag_.store(true);
+    if (running_.load())
+        c.stop();
+}
 
 void DX_LinkStreamer::populate_class_attrs()
 {
@@ -164,10 +176,11 @@ void DX_LinkStreamer::on_open(connection_hdl hdl)
     send_initial_msgs();
 
     keep_alive_thread = std::thread([this]() {
-        while (true)
-        {    
+        while (!stop_flag_.load())
+        {
             std::this_thread::sleep_for(std::chrono::milliseconds(KEEP_ALIVE_INTERVAL_MS));
-            send_periodic_msgs();
+            if (!stop_flag_.load())
+                send_periodic_msgs();
         }
     });
 }
@@ -239,6 +252,7 @@ auto DX_LinkStreamer::create_connection() -> client::connection_ptr
 
 void DX_LinkStreamer::run()
 {
+    running_.store(true);
     configure_channels();
     setup_handlers();
 

@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <csignal>
 
 #include "tastyworks/TastyWorks.h"
 #include "streamer/DX_LinkStreamer.h"
@@ -13,6 +14,14 @@
 #include "algo/vmacd/VMACD.h"
 #include "algo/Signal.h"
 #include "orchestrator/Orchestrator.h"
+
+static DX_LinkStreamer* g_streamer = nullptr; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+
+static void handle_signal(int /*signum*/)
+{
+    if (g_streamer != nullptr)
+        g_streamer->stop();
+}
 
 auto main(int argc, char** argv) -> int
 {
@@ -32,6 +41,10 @@ auto main(int argc, char** argv) -> int
 
         LOG_INFO("Initialising Orchestrator object.", "MAIN");
         Orchestrator orch(*twClient, *dxlStreamer);
+
+        g_streamer = dxlStreamer.get();
+        std::signal(SIGINT, handle_signal);
+        std::signal(SIGTERM, handle_signal);
 
         LOG_INFO("Triggering data stream.", "MAIN");
         dxlStreamer->set_on_quote([&](const MarketQuote& quote)

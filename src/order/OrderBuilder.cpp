@@ -90,8 +90,6 @@ auto OrderBuilder::buildJsonToSubmitOrder(
 {
     LOG_INFO("Building order submission logic.", "ORDER");
 
-    legs_.clear();
-
     return this
         ->timeInForce("GTC")
         .orderType("Notional Market")

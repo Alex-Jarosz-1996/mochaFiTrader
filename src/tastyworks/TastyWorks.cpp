@@ -3,6 +3,8 @@
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
+#include <thread>
+#include <chrono>
 #include <cpr/cpr.h>
 #include <nlohmann/json.hpp>
 
@@ -35,6 +37,7 @@ void TastyWorksClient::loadConfig()
     PASSWORD = Config::get_config_value("TASTYWORKS_PASSWORD");
     ACCOUNT_NUMBER = Config::get_config_value("TASTYWORKS_ACCOUNT_NUMBER");
     REMEMBER_ME = true;
+    HTTP_TIMEOUT_MS = static_cast<int>(Config::get_numeric_value("HTTP_TIMEOUT_MS"));
 }
 
 void TastyWorksClient::constructHeader()
@@ -115,33 +118,42 @@ void TastyWorksClient::getSessionToken()
         {"remember-me", REMEMBER_ME}
     };
 
-    cpr::Response response = cpr::Post(
-        cpr::Url{session_url},
-        _h,
-        cpr::Body{json_body.dump()},
-        cpr::Timeout{HTTP_TIMEOUT_MS}
-    );
-
-    if (Utils::isCorrectStatusCode(response, HTTP_CREATED))
+    for (int attempt = 0; attempt < MAX_RETRIES; ++attempt)
     {
-        LOG_INFO("Authentication successful. Retrieving session token.", "TASTYWORKS");
+        cpr::Response response = cpr::Post(
+            cpr::Url{session_url},
+            _h,
+            cpr::Body{json_body.dump()},
+            cpr::Timeout{HTTP_TIMEOUT_MS}
+        );
 
-        nlohmann::json json_response = Utils::parseJsonResponse(response);
-        
-        _session_token = Utils::getJsonResponseAttrValue<std::string>(json_response, "session-token");
-
-        LOG_INFO("Checking if session token was generated.", "TASTYWORKS");
-        if (_session_token.empty())
+        if (Utils::isCorrectStatusCode(response, HTTP_CREATED))
         {
-            throw std::invalid_argument("ERROR TastyWorksClient::getSessionToken(). No session token generated. Check login details.");
+            LOG_INFO("Authentication successful. Retrieving session token.", "TASTYWORKS");
+
+            nlohmann::json json_response = Utils::parseJsonResponse(response);
+
+            _session_token = Utils::getJsonResponseAttrValue<std::string>(json_response, "session-token");
+
+            LOG_INFO("Checking if session token was generated.", "TASTYWORKS");
+            if (_session_token.empty())
+            {
+                throw std::invalid_argument("ERROR TastyWorksClient::getSessionToken(). No session token generated. Check login details.");
+            }
+
+            LOG_INFO("Session token was generated.", "TASTYWORKS");
+            return;
         }
 
-        LOG_INFO("Session token was generated.", "TASTYWORKS");
-        return;
+        LOG_WARN("Session token attempt " + std::to_string(attempt + 1) + " failed. Status: "
+                 + std::to_string(response.status_code), "TASTYWORKS");
+
+        if (attempt + 1 < MAX_RETRIES)
+            std::this_thread::sleep_for(std::chrono::milliseconds(RETRY_DELAY_MS));
     }
 
-    LOG_ERROR("Issue generating session token. Status Code: " + std::to_string(response.status_code) + " Reasoning: " + response.text, "TASTYWORKS");
-    throw std::invalid_argument("ERROR TastyWorksClient::getSessionToken(). Issue generating session token." + response.text);
+    throw std::invalid_argument("ERROR TastyWorksClient::getSessionToken(). Issue generating session token after "
+                                + std::to_string(MAX_RETRIES) + " attempts.");
 }
 
 void TastyWorksClient::confirmUserAccountActive()
@@ -179,7 +191,7 @@ void TastyWorksClient::confirmUserAccountActive()
             throw std::invalid_argument("ERROR TastyWorksClient::confirmUserAccountActive(). Json Response does not contain 'is-closed' attribute.");
         }
 
-        throw std::invalid_argument("ERROR TastyWorksClient::confirmUserAccountActive(). Json response does contain 'data' attribute.");
+        throw std::invalid_argument("ERROR TastyWorksClient::confirmUserAccountActive(). Json response does not contain 'data' attribute.");
     }
 
     throw std::invalid_argument("ERROR TastyWorksClient::confirmUserAccountActive(). Did not receive 200 response when checking if user account is active.");
@@ -211,10 +223,10 @@ void TastyWorksClient::defineQuoteTokenStreamUrl()
                 return;    
             }
             
-            throw std::invalid_argument("ERROR TastyWorksClient::defineQuoteTokenStreamUrl(). Json response does contain either 'dxlink-url' or 'token' attribute.");
+            throw std::invalid_argument("ERROR TastyWorksClient::defineQuoteTokenStreamUrl(). Json response does not contain either 'dxlink-url' or 'token' attribute.");
         }
         
-        throw std::invalid_argument("ERROR TastyWorksClient::defineQuoteTokenStreamUrl(). Json response does contain 'data' attribute.");
+        throw std::invalid_argument("ERROR TastyWorksClient::defineQuoteTokenStreamUrl(). Json response does not contain 'data' attribute.");
     }
     
     throw std::invalid_argument("ERROR TastyWorksClient::defineQuoteTokenStreamUrl(). Did not receive 200 response when retrieving feed token and Url.");
@@ -263,7 +275,7 @@ auto TastyWorksClient::getAccountBalance() -> double
             throw std::invalid_argument("ERROR TastyWorksClient::confirmAccountBalanceAdequate(). Json Response does not contain 'net-liquidating-value' attribute.");
         }
         
-        throw std::invalid_argument("ERROR TastyWorksClient::confirmAccountBalanceAdequate(). Json response does contain 'data' attribute.");
+        throw std::invalid_argument("ERROR TastyWorksClient::confirmAccountBalanceAdequate(). Json response does not contain 'data' attribute.");
     }
     
     throw std::invalid_argument("ERROR TastyWorksClient::confirmAccountBalanceAdequate(). Did not receive 200 response when checking min account balance.");
@@ -311,18 +323,27 @@ void TastyWorksClient::submitOrder(const nlohmann::json& body)
 {
     LOG_INFO("Submitting order.", "TASTYWORKS");
     std::string submit_order_url = BASE_URL + "/accounts/" + ACCOUNT_NUMBER + "/orders";
-    
-    cpr::Response response = cpr::Post(
-        cpr::Url{submit_order_url},
-        _h_auth,
-        cpr::Body{body.dump()},
-        cpr::Timeout{HTTP_TIMEOUT_MS}
-    );
 
-    if (Utils::isCorrectStatusCode(response, HTTP_OK) || Utils::isCorrectStatusCode(response, HTTP_CREATED))
+    for (int attempt = 0; attempt < MAX_RETRIES; ++attempt)
     {
-        return;
+        cpr::Response response = cpr::Post(
+            cpr::Url{submit_order_url},
+            _h_auth,
+            cpr::Body{body.dump()},
+            cpr::Timeout{HTTP_TIMEOUT_MS}
+        );
+
+        if (Utils::isCorrectStatusCode(response, HTTP_OK) || Utils::isCorrectStatusCode(response, HTTP_CREATED))
+        {
+            return;
+        }
+
+        LOG_WARN("Order submission attempt " + std::to_string(attempt + 1) + " failed. Status: "
+                 + std::to_string(response.status_code), "TASTYWORKS");
+
+        if (attempt + 1 < MAX_RETRIES)
+            std::this_thread::sleep_for(std::chrono::milliseconds(RETRY_DELAY_MS));
     }
 
-    throw std::invalid_argument("HTTP error submitting order: " + response.error.message);
+    throw std::invalid_argument("HTTP error submitting order after " + std::to_string(MAX_RETRIES) + " attempts.");
 }

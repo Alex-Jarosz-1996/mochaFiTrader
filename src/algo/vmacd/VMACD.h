@@ -31,7 +31,7 @@ class VMACD : public Algo
         int trigger_window = 0;
         
         // imb strength threshold indicator
-        double imb_strength = 0.12;
+        double imb_strength = 0.0;
 
         // smoothing factors
         double k_fast = 0.0;

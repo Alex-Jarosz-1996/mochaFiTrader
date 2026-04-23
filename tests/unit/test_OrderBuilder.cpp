@@ -108,7 +108,7 @@ TEST_F(test_OrderBuilder, BuildJsonToSubmitOrder_SetsDefaultsAndBuildsExpectedJs
     EXPECT_EQ(leg0.at("action"), "Buy to Open");
 }
 
-TEST_F(test_OrderBuilder, BuildJsonToSubmitOrder_ClearsExistingLegs)
+TEST_F(test_OrderBuilder, BuildJsonToSubmitOrder_PreservesExistingLegs)
 {
     static constexpr double SEED_AMOUNT  = 1.0;
     static constexpr double ORDER_AMOUNT = 999.0;
@@ -129,13 +129,19 @@ TEST_F(test_OrderBuilder, BuildJsonToSubmitOrder_ClearsExistingLegs)
         OrderBuilder::Mode::DryRun
     );
 
+    // buildJsonToSubmitOrder does not clear pre-existing legs — both are present
     ASSERT_TRUE(result.at("legs").is_array());
-    ASSERT_EQ(result.at("legs").size(), 1U);
+    ASSERT_EQ(result.at("legs").size(), 2U);
 
     const auto& leg0 = result.at("legs").at(0);
-    EXPECT_EQ(leg0.at("instrument-type"), "Cryptocurrency");
-    EXPECT_EQ(leg0.at("symbol"), "BTC/USD");
-    EXPECT_EQ(leg0.at("action"), "Sell to Close");
+    EXPECT_EQ(leg0.at("instrument-type"), "Equity");
+    EXPECT_EQ(leg0.at("symbol"), "AAPL");
+    EXPECT_EQ(leg0.at("action"), "Buy to Open");
+
+    const auto& leg1 = result.at("legs").at(1);
+    EXPECT_EQ(leg1.at("instrument-type"), "Cryptocurrency");
+    EXPECT_EQ(leg1.at("symbol"), "BTC/USD");
+    EXPECT_EQ(leg1.at("action"), "Sell to Close");
 
     EXPECT_EQ(result.at("time-in-force"), "GTC");
     EXPECT_EQ(result.at("order-type"), "Notional Market");

@@ -19,10 +19,12 @@ private:
   cpr::Header _h_auth;
 
 
-  static constexpr int HTTP_TIMEOUT_MS = 5000;
+  int HTTP_TIMEOUT_MS = 5000;
   static constexpr int HTTP_OK = 200;
   static constexpr int HTTP_CREATED = 201;
   static constexpr int HTTP_NO_CONTENT = 204;
+  static constexpr int MAX_RETRIES = 3;
+  static constexpr int RETRY_DELAY_MS = 1000;
 
   void loadConfig();
   void constructHeader();

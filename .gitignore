@@ -4,6 +4,9 @@ build/
 # project configs
 config.json
 
+# strategy configs
+/src/algo/strategy/*.json
+
 # clion files
 /.vscode
 

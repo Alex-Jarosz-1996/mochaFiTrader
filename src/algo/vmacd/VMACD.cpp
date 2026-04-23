@@ -1,5 +1,6 @@
 #include <cmath>
 #include "VMACD.h"
+#include "src/config/Config.h"
 
 static constexpr double EMA_MULTIPLIER = 2.0;
 static constexpr double MID_PRICE_FACTOR = 0.5;
@@ -10,6 +11,7 @@ VMACD::VMACD(VMACDParams params)
       k_signal(EMA_MULTIPLIER / (params.signal + 1.0)),
       trigger_window(3 * params.slow)
 {
+    imb_strength = Config::get_strategy_value("vmacd", "IMB_STRENGTH");
 }
 
 auto VMACD::extract_trade_price(const MarketQuote& mkt_quote) -> std::optional<double>

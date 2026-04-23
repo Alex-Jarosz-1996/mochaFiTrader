@@ -61,6 +61,8 @@ class DX_LinkStreamer {
         client c;
         connection_hdl conn_hdl;
         std::thread keep_alive_thread;
+        std::atomic<bool> stop_flag_{false};
+        std::atomic<bool> running_{false};
 
         void send(const nlohmann::json& msg);
         void configure_channels();
@@ -75,11 +77,12 @@ class DX_LinkStreamer {
         static std::optional<double> safe_parse_quote(const nlohmann::json& pckt, const std::string& key);
 
     public:
-        DX_LinkStreamer(TastyWorksClient& client);
+        explicit DX_LinkStreamer(TastyWorksClient& client);
         virtual ~DX_LinkStreamer();
 
         virtual void set_on_quote(QuoteCallback qcb);
         virtual void run();
+        virtual void stop();
 
         const nlohmann::json& get_authorize_msg() const { return authorize_msg; }
 };

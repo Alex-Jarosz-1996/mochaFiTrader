@@ -9,4 +9,5 @@ class Config
         static nlohmann::json load_config_file();
         static std::string get_config_value(const std::string& key);
         static double get_numeric_value(const std::string& key);
+        static double get_strategy_value(const std::string& strategy, const std::string& key);
 };
