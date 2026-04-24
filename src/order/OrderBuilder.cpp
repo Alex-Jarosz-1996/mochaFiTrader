@@ -1,4 +1,3 @@
-#include "cmath"
 #include <stdexcept>
 
 #include "OrderBuilder.h"
@@ -89,6 +88,9 @@ auto OrderBuilder::buildJsonToSubmitOrder(
     Mode dryRun) -> nlohmann::json
 {
     LOG_INFO("Building order submission logic.", "ORDER");
+
+    if (value <= 0.0)
+        throw std::invalid_argument("Order amount must be positive, requested value: " + std::to_string(value));
 
     return this
         ->timeInForce("GTC")

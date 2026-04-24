@@ -4,6 +4,7 @@
 #include "DX_LinkStreamer.h"
 #include "src/marketquote/MarketQuote.h"
 #include "src/config/Config.h"
+#include "src/log/Log.h"
 #include "src/tastyworks/TastyWorks.h"
 
 DX_LinkStreamer::DX_LinkStreamer(TastyWorksClient& client)
@@ -191,7 +192,7 @@ void DX_LinkStreamer::on_msg(const client::message_ptr& msg)
     {
         nlohmann::json pckt = nlohmann::json::parse(msg->get_payload());
 
-        if (pckt["type"] == "FEED_DATA" && pckt.contains("data"))
+        if (pckt.contains("type") && pckt["type"] == "FEED_DATA" && pckt.contains("data"))
         {
             for (const auto& entry : pckt["data"])
             {
@@ -204,7 +205,7 @@ void DX_LinkStreamer::on_msg(const client::message_ptr& msg)
     }
     catch (const std::exception& e)
     {
-        throw std::runtime_error(e.what());
+        LOG_ERROR(std::string("Failed to process message: ") + e.what(), "STREAMER");
     }
 }
 

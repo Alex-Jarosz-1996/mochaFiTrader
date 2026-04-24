@@ -11,8 +11,9 @@
 #include "streamer/DX_LinkStreamer.h"
 #include "marketquote/MarketQuote.h"
 #include "log/Log.h"
-#include "algo/vmacd/VMACD.h"
+#include "algo/AlgoFactory.h"
 #include "algo/Signal.h"
+#include "config/Config.h"
 #include "orchestrator/Orchestrator.h"
 
 static DX_LinkStreamer* g_streamer = nullptr; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
@@ -37,7 +38,8 @@ auto main(int argc, char** argv) -> int
         std::unique_ptr<DX_LinkStreamer> dxlStreamer = std::make_unique<DX_LinkStreamer>(*twClient);
 
         LOG_INFO("Initialising strategy object.", "MAIN");
-        std::unique_ptr<VMACD> strategy = std::make_unique<VMACD>();
+        const std::string strategy_name = Config::get_config_value("STRATEGY");
+        std::unique_ptr<Algo> strategy = AlgoFactory::make_strategy(strategy_name);
 
         LOG_INFO("Initialising Orchestrator object.", "MAIN");
         Orchestrator orch(*twClient, *dxlStreamer);

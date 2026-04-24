@@ -262,14 +262,7 @@ auto TastyWorksClient::getAccountBalance() -> double
             if (Utils::checkForAttrInsideJsonResponse(json_response, "net-liquidating-value"))
             {
                 auto nlv = Utils::getJsonResponseAttrValue<std::string>(json_response, "net-liquidating-value");
-                double nlv_d = std::stod(nlv);
-
-                if (nlv_d < Config::get_numeric_value("ACCOUNT_MIN"))
-                {
-                    throw std::invalid_argument("Unable to trade as account is less than threshold.");
-                }
-                
-                return nlv_d;
+                return std::stod(nlv);
             }
 
             throw std::invalid_argument("ERROR TastyWorksClient::confirmAccountBalanceAdequate(). Json Response does not contain 'net-liquidating-value' attribute.");
@@ -312,7 +305,7 @@ auto TastyWorksClient::getNumberAccountPositions() -> size_t
             throw std::invalid_argument("ERROR TastyWorksClient::getNumberAccountPositions(). Json Response does not contain 'items' attribute.");
         }
 
-        throw std::invalid_argument("ERROR TastyWorksClient::getNumberAccountPositions(). Json response does contain 'data' attribute.");
+        throw std::invalid_argument("ERROR TastyWorksClient::getNumberAccountPositions(). Json response does not contain 'data' attribute.");
     }
     
     throw std::invalid_argument("ERROR TastyWorksClient::getNumberAccountPositions(). Did not receive 200 response when determining number of account positions active.");

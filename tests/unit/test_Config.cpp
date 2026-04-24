@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <stdexcept>
 #include "src/config/Config.h"
 
 TEST(test_Config, TastyWorksBaseUrlConfigCheck)
@@ -43,8 +44,13 @@ TEST(test_Config, InstrumentConfigCheck)
     EXPECT_FALSE(val.empty());
 }
 
-TEST(test_Config, ReturnsEmptyStringForMissingKey)
+TEST(test_Config, ThrowsOnMissingKey)
 {
-    std::string val = Config::get_config_value("NON_EXISTENT_KEY_999");
-    EXPECT_TRUE(val.empty());
+    EXPECT_THROW(Config::get_config_value("NON_EXISTENT_KEY_999"), std::invalid_argument);
+}
+
+TEST(test_Config, StrategyKeyPresent)
+{
+    std::string val = Config::get_config_value("STRATEGY");
+    EXPECT_FALSE(val.empty());
 }

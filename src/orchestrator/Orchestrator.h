@@ -20,7 +20,7 @@ class Orchestrator
     public:
         Orchestrator(TastyWorksClient& client, DX_LinkStreamer& streamer);
 
-        std::optional<nlohmann::json> build_order_body(Signal signal);
+        std::optional<nlohmann::json> build_order_body(Signal signal, double balance) const;
         void on_signal(Signal signal);
 };
 

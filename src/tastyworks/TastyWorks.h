@@ -18,7 +18,6 @@ private:
   cpr::Header _h;
   cpr::Header _h_auth;
 
-
   int HTTP_TIMEOUT_MS = 5000;
   static constexpr int HTTP_OK = 200;
   static constexpr int HTTP_CREATED = 201;
@@ -31,11 +30,11 @@ private:
   void constructAuthHeader();
   void logout();
 
-public:
   std::string _session_token;
   std::string _api_quote_token;
   std::string _dx_link_url;
-  
+
+public:
   TastyWorksClient(bool auto_init = true);
   
   virtual ~TastyWorksClient();

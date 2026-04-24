@@ -75,7 +75,6 @@ TEST_F(test_TastyWorks, Live_HandlesTokenGeneration)
     std::string skip_reason;
     if (!fixture.try_build(skip_reason)) GTEST_SKIP() << skip_reason;
 
-    EXPECT_FALSE(fixture.twClient->_session_token.empty());
-    EXPECT_FALSE(fixture.twClient->_api_quote_token.empty());
-    EXPECT_FALSE(fixture.twClient->_dx_link_url.empty());
+    EXPECT_FALSE(fixture.twClient->getAPI_QuoteToken().empty());
+    EXPECT_FALSE(fixture.twClient->getDX_LinkUrl().empty());
 }

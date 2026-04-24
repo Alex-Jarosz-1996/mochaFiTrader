@@ -10,12 +10,10 @@ Orchestrator::Orchestrator(TastyWorksClient& client, DX_LinkStreamer& streamer)
       dxlStreamer_(streamer),
       trAsset_(TradeableAsset::constructTradeableAsset()) {}
 
-auto Orchestrator::build_order_body(Signal signal) -> std::optional<nlohmann::json>
+auto Orchestrator::build_order_body(Signal signal, double balance) const -> std::optional<nlohmann::json>
 {
     LOG_INFO("Building order body.", "ORCHESTRATOR");
     if (signal == Signal::HOLD) return std::nullopt;
-    
-    const double balance = twClient_.getTradeableAmount();
     
     std::string_view action;
     if (signal == Signal::BUY) {
@@ -41,13 +39,14 @@ auto Orchestrator::build_order_body(Signal signal) -> std::optional<nlohmann::js
 void Orchestrator::on_signal(Signal signal)
 {
     LOG_INFO("Executing on signal.", "ORCHESTRATOR");
-    const double account_min = Config::get_numeric_value("ACCOUNT_MIN");
-    const double balance = twClient_.getAccountBalance();
+    const double account_min   = Config::get_numeric_value("ACCOUNT_MIN");
+    const double trade_factor  = Config::get_numeric_value("TRADE_FACTOR");
+    const double balance       = twClient_.getAccountBalance();
     if (balance < account_min)
     {
         throw std::invalid_argument("Unable to trade as account is less than threshold.");
     }
-    
+
     if (signal == Signal::HOLD) return;
 
     const size_t num_pos = twClient_.getNumberAccountPositions();
@@ -65,7 +64,8 @@ void Orchestrator::on_signal(Signal signal)
         return;
     }
 
-    std::optional<nlohmann::json> body = build_order_body(signal);
+    const double tradeable_amount = trade_factor * balance;
+    std::optional<nlohmann::json> body = build_order_body(signal, tradeable_amount);
     if (!body) return;
 
     try
