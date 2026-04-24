@@ -35,6 +35,14 @@ auto Config::get_config_value(const std::string& key) -> std::string
     return config.at(key).get<std::string>();
 }
 
+auto Config::get_config_array(const std::string& key) -> std::vector<std::string>
+{
+    nlohmann::json config = Config::load_config_file();
+    if (!config.contains(key))
+        throw std::invalid_argument("Missing required config key: " + key);
+    return config.at(key).get<std::vector<std::string>>();
+}
+
 auto Config::get_numeric_value(const std::string& key) -> double
 {
     nlohmann::json config = Config::load_config_file();

@@ -55,3 +55,27 @@ TEST(test_AlgoFactory, MakeStrategy_Rsi_HoldsOnFirstQuote)
     MarketQuote quote = make_trade("BTC/USD", 50000.0);
     EXPECT_EQ(strategy->generate_trading_signal(quote), Signal::HOLD);
 }
+
+TEST(test_AlgoFactory, MakeStrategies_ReturnsCorrectCount)
+{
+    auto strategies = AlgoFactory::make_strategies({"vmacd", "macd", "rsi"});
+    EXPECT_EQ(strategies.size(), 3U);
+}
+
+TEST(test_AlgoFactory, MakeStrategies_AllNonNull)
+{
+    auto strategies = AlgoFactory::make_strategies({"vmacd", "macd", "rsi"});
+    for (const auto& s : strategies)
+        EXPECT_NE(s, nullptr);
+}
+
+TEST(test_AlgoFactory, MakeStrategies_UnknownName_Throws)
+{
+    EXPECT_THROW(AlgoFactory::make_strategies({"vmacd", "unknown"}), std::invalid_argument);
+}
+
+TEST(test_AlgoFactory, MakeStrategies_EmptyList_ReturnsEmptyVector)
+{
+    auto strategies = AlgoFactory::make_strategies({});
+    EXPECT_TRUE(strategies.empty());
+}

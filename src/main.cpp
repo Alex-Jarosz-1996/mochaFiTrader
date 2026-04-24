@@ -12,6 +12,7 @@
 #include "marketquote/MarketQuote.h"
 #include "log/Log.h"
 #include "algo/AlgoFactory.h"
+#include "algo/StrategyAggregator.h"
 #include "algo/Signal.h"
 #include "config/Config.h"
 #include "orchestrator/Orchestrator.h"
@@ -38,8 +39,10 @@ auto main(int argc, char** argv) -> int
         std::unique_ptr<DX_LinkStreamer> dxlStreamer = std::make_unique<DX_LinkStreamer>(*twClient);
 
         LOG_INFO("Initialising strategy object.", "MAIN");
-        const std::string strategy_name = Config::get_config_value("STRATEGY");
-        std::unique_ptr<Algo> strategy = AlgoFactory::make_strategy(strategy_name);
+        const std::vector<std::string> strategy_names = Config::get_config_array("STRATEGIES");
+        std::unique_ptr<Algo> strategy = std::make_unique<StrategyAggregator>(
+            AlgoFactory::make_strategies(strategy_names)
+        );
 
         LOG_INFO("Initialising Orchestrator object.", "MAIN");
         Orchestrator orch(*twClient, *dxlStreamer);

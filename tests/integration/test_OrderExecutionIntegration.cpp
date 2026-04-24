@@ -13,7 +13,8 @@ TEST(OrderExecutionIntegration, BuildAndVerifyDryRunOrder) {
         Orchestrator orch(client, streamer);
 
         // Manually trigger the internal order building logic
-        auto order_body = orch.build_order_body(Signal::BUY);
+        static constexpr double TEST_BALANCE = 1000.0;
+        auto order_body = orch.build_order_body(Signal::BUY, TEST_BALANCE);
         
         ASSERT_TRUE(order_body.has_value());
         
@@ -21,7 +22,7 @@ TEST(OrderExecutionIntegration, BuildAndVerifyDryRunOrder) {
         EXPECT_TRUE((*order_body).contains("legs"));
 
         // Verify SELL signal construction
-        auto sell_body = orch.build_order_body(Signal::SELL);
+        auto sell_body = orch.build_order_body(Signal::SELL, TEST_BALANCE);
         ASSERT_TRUE(sell_body.has_value());
         EXPECT_EQ((*sell_body)["legs"][0]["action"], "Sell to Close");
 

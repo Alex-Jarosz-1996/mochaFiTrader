@@ -49,8 +49,13 @@ TEST(test_Config, ThrowsOnMissingKey)
     EXPECT_THROW(Config::get_config_value("NON_EXISTENT_KEY_999"), std::invalid_argument);
 }
 
-TEST(test_Config, StrategyKeyPresent)
+TEST(test_Config, StrategiesArrayPresent)
 {
-    std::string val = Config::get_config_value("STRATEGY");
-    EXPECT_FALSE(val.empty());
+    auto strategies = Config::get_config_array("STRATEGIES");
+    EXPECT_FALSE(strategies.empty());
+}
+
+TEST(test_Config, GetConfigArray_ThrowsOnMissingKey)
+{
+    EXPECT_THROW(Config::get_config_array("NON_EXISTENT_ARRAY_999"), std::invalid_argument);
 }

@@ -51,7 +51,8 @@ TEST_F(test_Orchestrator, BuildOrderBody_ReturnsNulloptOnHold)
     std::string skip_reason;
     if (!fixture.try_build(skip_reason)) GTEST_SKIP() << "Skipping Orchestrator tests: " << skip_reason;
 
-    auto body = fixture.orchestrator->build_order_body(Signal::HOLD);
+    static constexpr double TEST_BALANCE = 1000.0;
+    auto body = fixture.orchestrator->build_order_body(Signal::HOLD, TEST_BALANCE);
     EXPECT_FALSE(body.has_value());
 }
 
@@ -64,7 +65,8 @@ TEST_F(test_Orchestrator, BuildOrderBody_Buy_ReturnsJsonWithOneLegAndBuyAction) 
     std::optional<nlohmann::json> body;
     try
     {
-        body = fixture.orchestrator->build_order_body(Signal::BUY);
+        static constexpr double TEST_BALANCE = 1000.0;
+        body = fixture.orchestrator->build_order_body(Signal::BUY, TEST_BALANCE);
     } catch (const std::exception& e) {
         GTEST_SKIP() << "Skipping because build_order_body(BUY) threw (likely missing API session/config): "
                      << e.what();
@@ -100,7 +102,8 @@ TEST_F(test_Orchestrator, BuildOrderBody_Sell_ReturnsJsonWithOneLegAndSellAction
     std::optional<nlohmann::json> body;
     try
     {
-        body = fixture.orchestrator->build_order_body(Signal::SELL);
+        static constexpr double TEST_BALANCE = 1000.0;
+        body = fixture.orchestrator->build_order_body(Signal::SELL, TEST_BALANCE);
     } catch (const std::exception& e) {
         GTEST_SKIP() << "Skipping because build_order_body(SELL) threw (likely missing API session/config): "
                      << e.what();

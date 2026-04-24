@@ -50,6 +50,8 @@ set(CORE_SOURCES
     src/config/Config.cpp
     src/log/Log.cpp
     src/algo/algo/Algo.cpp
+    src/algo/AlgoFactory.cpp
+    src/algo/StrategyAggregator.cpp
     src/algo/macd/MACD.cpp
     src/algo/vmacd/VMACD.cpp
     src/algo/rsi/RSI.cpp
